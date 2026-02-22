@@ -89,4 +89,33 @@ public class CombatEngine
         }
         _enemy.PlanNextMove();
     }
+
+    public bool StartBattle()
+    {
+        Console.WriteLine($"A wild {_enemy.Name} appears!");
+
+        while (!_player.IsDead && !_enemy.IsDead)
+        {
+            Console.WriteLine($"\nPLAYER HP: {_player.CurrentHp} | ENEMY: {_enemy.CurrentHp} (Intent: {_enemy.CurrentIntent}");
+
+
+            //Player's turn
+            var hand = DrawHand();
+            Console.WriteLine("Cards: ");
+            for(int i=0; i<hand.Count; i++)Console.WriteLine($"[{i+1}] {hand[i].Name} ({hand[i].Value})");
+
+            Console.WriteLine("> ");
+            if(int.TryParse(Console.ReadLine(), out int choice) && choice > 0 && choice <= hand.Count)
+            {
+                PlayCard(hand[choice-1]);
+            }
+
+            if(_enemy.IsDead) return true;
+
+            EnemyTurn();
+
+            if(_player.IsDead) return false;
+        }
+        return false;
+    }
 }

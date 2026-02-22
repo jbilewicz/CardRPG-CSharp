@@ -20,6 +20,6 @@ The player can choose between three primary activities:
 
 ## 🛠️ Tech Stack
 - **Language:** C# 12+
-- **Platform:** .NET 8/9
+- **Platform:** .NET 10
 - **Paradigm:** Object-Oriented Programming (OOP)
 - **Data Persistence:** JSON (System.Text.Json) for save files and item databases.

@@ -60,29 +60,85 @@ public class GameManager
 
     private void StartJourney()
     {
-        Console.WriteLine("\nYou leave the city...");
+        Console.Clear();
+        Console.WriteLine("🗺️ You open your map. Three dangerous stages lie ahead...");
+        Console.WriteLine("[ Slime ] ----> [  Goblin ] ----> [  ORC BOSS ]");
+        Console.WriteLine("\nPress any key to start the adventure...");
+        Console.ReadKey();
 
-        Enemy goblin = new Enemy("Goblin Scavenger", 40, 6);
-
-        CombatEngine battle = new CombatEngine(_player, goblin);
-        bool victory = battle.StartBattle();
-
-        if (victory)
+        int totalStages = 3;
+        for (int stage = 1; stage <= totalStages; stage++)
         {
-            Console.WriteLine("\nVICTORY!");
-            int goldReward = new Random().Next(10, 25);
-            _player.Gold += goldReward;
-            Console.WriteLine($"You found {goldReward} Gold!");
+            //Generating enemy 
+            Enemy enemy = GenerateEnemy(stage);
+
+            Console.Clear();
+            Console.WriteLine($"\n=== STAGE {stage}/{totalStages}: {enemy.Name} ===");
+            Console.WriteLine("Get ready for battle!");
+            Thread.Sleep(1000);
+
+            //Fight
+            CombatEngine battle = new CombatEngine(_player, enemy);
+            bool victory = battle.StartBattle();
+
+            if (!victory)
+            {
+                Console.WriteLine("\nDEFEAT! You were knocked out and dragged back to town...");
+                _player.CurrentHp = 1; // Punishment
+                _player.Gold = Math.Max(0, _player.Gold - 10); // -10 gold per lose
+                Console.ReadKey();
+                return;
+            }
+
+            // rewards after win
+
+            Console.WriteLine($"\nStage {stage} cleared!");
+
+            //hp regeneration after fight (20% maxHP)
+            int heal = (int)(_player.MaxHp * 0.2);
+            _player.Heal(heal);
+            Console.WriteLine($"You patch your wounds and recover {heal} HP.");
+
+            //gold and cards
+            if (stage == totalStages)//boss reward
+            {
+                int bossGold = 100;
+                _player.Gold += bossGold;
+                Console.WriteLine($"BOSS DEFEATED! You found a chest with {bossGold} Gold!");
+
+                Card rewardCard = new Card("Execute", 2, CardType.Attack, 25);
+                _player.MasterDeck.Add(rewardCard);
+                Console.WriteLine($"New card unlocked: {rewardCard.Name} | {rewardCard.Value} DMG !!");
+
+            }
+            else //common reward
+            {
+                int gold = new Random().Next(10,20);
+                _player.Gold+=gold;
+                Console.WriteLine($"You found {gold} Gold.");
+            }
+
+            Console.WriteLine("\nPress any key to continue to the next stage...");
             Console.ReadKey();
         }
-        else
-        {
-            Console.WriteLine("\nDEFEAT! You drag yourself back to town...");
-            _player.CurrentHp = 1; // lost, 1 hp remain
-            Console.ReadKey();
-        }
+        Console.WriteLine("\nJOURNEY COMPLETE! You return to the city as a hero.");
+        Console.ReadKey();
     }
 
+    private Enemy GenerateEnemy(int stage)
+    {
+        switch (stage)
+        {
+            case 1:
+                return new Enemy("Green Slime", 30, 4); // weak
+            case 2:
+                return new Enemy("Goblin Scout", 50, 8); // avg
+            case 3:
+                return new Enemy(" ORC WARLORD", 120, 12); // BOSS 
+            default:
+                return new Enemy("Unknown Entity", 10, 1);
+        }
+    }
     private void EnterShop()
     {
         bool inShop = true;
@@ -131,9 +187,9 @@ public class GameManager
                     inShop = false;
                     break;
                 default:
-                Console.WriteLine("Invalid Choice.");
-                Console.ReadKey();
-                break;
+                    Console.WriteLine("Invalid Choice.");
+                    Console.ReadKey();
+                    break;
             }
 
         }
@@ -143,7 +199,7 @@ public class GameManager
     {
         if (_player.Gold >= cost)
         {
-            _player.Gold-=cost;
+            _player.Gold -= cost;
             onSuccess(); //do stats increment
             Console.WriteLine($"\nBought {itemName}! Gold left {_player.Gold}");
 

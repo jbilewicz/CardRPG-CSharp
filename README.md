@@ -1,4 +1,4 @@
-# 🃏 CardRPG - C# Console Deckbuilder
+# CardRPG - C# Console Deckbuilder
 
 ## 🌟 About the Project
 CardRPG is a turn-based strategy game where the player develops their character, manages attributes, and battles enemies using a deck of cards. The game emphasizes the synergy between character stats and card performance.

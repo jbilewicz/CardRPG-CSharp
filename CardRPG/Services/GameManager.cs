@@ -1,25 +1,74 @@
 using CardRPG.Models;
+using System.Text.Json;
+using CardRPG.Data;
 
 namespace CardRPG.Services;
 
 public class GameManager
 {
     private Player _player;
+    private User _currentUser; 
     private bool _isRunning = true;
 
-    public GameManager()
+    
+    public GameManager(User user)
     {
-        Console.WriteLine("Enter your heroe's name: ");
-        string name = Console.ReadLine();
-        _player = new Player(name);
+        _currentUser = user;
 
-        InitializeStarterDeck();
+        if (!string.IsNullOrEmpty(user.SavedGameData))
+        {
+            
+            Console.WriteLine("📂 Found save data. Loading character...");
+            try 
+            {
+                
+                _player = JsonSerializer.Deserialize<Player>(user.SavedGameData);
+                Console.WriteLine($"✅ Welcome back, {_player.Name}! (Level/Stats loaded)");
+            }
+            catch 
+            {
+                Console.WriteLine("⚠️ Save file corrupted. Starting new game.");
+                _player = new Player(user.Username);
+                InitializeStarterDeck();
+            }
+        }
+        else
+        {
+            
+            Console.WriteLine("✨ New character created.");
+            _player = new Player(user.Username);
+            InitializeStarterDeck();
+            SaveGame(); 
+        }
     }
 
     private void InitializeStarterDeck()
     {
         for (int i = 0; i < 5; i++) _player.MasterDeck.Add(new Card("Strike", 1, CardType.Attack, 6));
         for (int i = 0; i < 5; i++) _player.MasterDeck.Add(new Card("Defend", 1, CardType.Defense, 5));
+    }
+
+    
+    private void SaveGame()
+    {
+        using (var db = new GameDBContext())
+        {
+            
+            string json = JsonSerializer.Serialize(_player);
+
+            
+            var userInDb = db.Users.FirstOrDefault(u => u.Id == _currentUser.Id);
+            
+            if (userInDb != null)
+            {
+                userInDb.SavedGameData = json; 
+                db.SaveChanges(); 
+                
+                
+                _currentUser.SavedGameData = json; 
+                Console.WriteLine("💾 Game Saved!");
+            }
+        }
     }
 
     public void Run()
@@ -32,7 +81,7 @@ public class GameManager
             Console.WriteLine("1. 🧭 Start Journey (Fight!)");
             Console.WriteLine("2. 🛒 Shop (Buy Items)");
             Console.WriteLine("3. 🍺 Tavern (Heal)");
-            Console.WriteLine("4. ❌ Exit Game");
+            Console.WriteLine("4. ❌ Save & Exit Game"); 
 
             Console.Write("> ");
             string choice = Console.ReadLine();
@@ -41,14 +90,18 @@ public class GameManager
             {
                 case "1":
                     StartJourney();
+                    SaveGame(); 
                     break;
                 case "2":
                     EnterShop();
+                    SaveGame(); 
                     break;
                 case "3":
                     EnterTavern();
+                    SaveGame(); 
                     break;
                 case "4":
+                    SaveGame(); 
                     _isRunning = false;
                     break;
                 default:
@@ -57,7 +110,6 @@ public class GameManager
             }
         }
     }
-
     private void StartJourney()
     {
         Console.Clear();
@@ -113,8 +165,8 @@ public class GameManager
             }
             else //common reward
             {
-                int gold = new Random().Next(10,20);
-                _player.Gold+=gold;
+                int gold = new Random().Next(10, 20);
+                _player.Gold += gold;
                 Console.WriteLine($"You found {gold} Gold.");
             }
 

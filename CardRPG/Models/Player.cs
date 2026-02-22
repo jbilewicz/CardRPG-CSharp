@@ -22,6 +22,7 @@ public class Player : Entity
         CurrentMana = MaxMana;
     }
 
+    public Player() : base("Unknown", 100) { }
     public override void TakeDamage(int damage)
     {
         if (Armor > 0)

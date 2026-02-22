@@ -9,6 +9,7 @@ public enum CardType
 
 public class Card
 {
+    
     public string Name {get; set;}
     public string Description {get;set;}
     public int Cost {get;set;}
@@ -19,6 +20,8 @@ public class Card
 
     public Guid Id{get; private set;} = Guid.NewGuid();
 
+    public int CooldownTurns { get; set; } = 0; // How many turns heavily blocked
+    public bool IsReady => CooldownTurns == 0;
     public Card(string name, int cost, CardType type, int value)
     {
         Name = name;

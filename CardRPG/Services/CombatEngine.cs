@@ -43,7 +43,7 @@ public class CombatEngine
         //Apply effect based on type
         if (card.Type == CardType.Attack)
         {
-            int totalDamage = card.Value + _player.Strength;
+            int totalDamage = card.Value + _player.GetTotalDamage();
 
             double critChance = _player.CalculateCritChance();
             if (_rng.Next(0, 100) < critChance)

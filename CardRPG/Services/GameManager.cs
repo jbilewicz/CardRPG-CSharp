@@ -7,25 +7,25 @@ namespace CardRPG.Services;
 public class GameManager
 {
     private Player _player;
-    private User _currentUser; 
+    private User _currentUser;
     private bool _isRunning = true;
 
-    
+
     public GameManager(User user)
     {
         _currentUser = user;
 
         if (!string.IsNullOrEmpty(user.SavedGameData))
         {
-            
+
             Console.WriteLine("📂 Found save data. Loading character...");
-            try 
+            try
             {
-                
+
                 _player = JsonSerializer.Deserialize<Player>(user.SavedGameData);
                 Console.WriteLine($"✅ Welcome back, {_player.Name}! (Level/Stats loaded)");
             }
-            catch 
+            catch
             {
                 Console.WriteLine("⚠️ Save file corrupted. Starting new game.");
                 _player = new Player(user.Username);
@@ -34,11 +34,11 @@ public class GameManager
         }
         else
         {
-            
+
             Console.WriteLine("✨ New character created.");
             _player = new Player(user.Username);
             InitializeStarterDeck();
-            SaveGame(); 
+            SaveGame();
         }
     }
 
@@ -48,24 +48,24 @@ public class GameManager
         for (int i = 0; i < 5; i++) _player.MasterDeck.Add(new Card("Defend", 1, CardType.Defense, 5));
     }
 
-    
+
     private void SaveGame()
     {
         using (var db = new GameDBContext())
         {
-            
+
             string json = JsonSerializer.Serialize(_player);
 
-            
+
             var userInDb = db.Users.FirstOrDefault(u => u.Id == _currentUser.Id);
-            
+
             if (userInDb != null)
             {
-                userInDb.SavedGameData = json; 
-                db.SaveChanges(); 
-                
-                
-                _currentUser.SavedGameData = json; 
+                userInDb.SavedGameData = json;
+                db.SaveChanges();
+
+
+                _currentUser.SavedGameData = json;
                 Console.WriteLine("💾 Game Saved!");
             }
         }
@@ -81,7 +81,8 @@ public class GameManager
             Console.WriteLine("1. 🧭 Start Journey (Fight!)");
             Console.WriteLine("2. 🛒 Shop (Buy Items)");
             Console.WriteLine("3. 🍺 Tavern (Heal)");
-            Console.WriteLine("4. ❌ Save & Exit Game"); 
+            Console.WriteLine("4. 🎒 Inventory");
+            Console.WriteLine("5. ❌ Save & Exit Game");
 
             Console.Write("> ");
             string choice = Console.ReadLine();
@@ -90,18 +91,21 @@ public class GameManager
             {
                 case "1":
                     StartJourney();
-                    SaveGame(); 
+                    SaveGame();
                     break;
                 case "2":
                     EnterShop();
-                    SaveGame(); 
+                    SaveGame();
                     break;
                 case "3":
                     EnterTavern();
-                    SaveGame(); 
+                    SaveGame();
                     break;
                 case "4":
-                    SaveGame(); 
+                    OpenInventory();
+                    break;
+                case "5":
+                    SaveGame();
                     _isRunning = false;
                     break;
                 default:
@@ -209,7 +213,9 @@ public class GameManager
             Console.WriteLine("3. 🧠 Scroll of Wisdom (+1 INT)     - 50 Gold");
             Console.WriteLine("4. ❤️ Heart Container (+10 Max HP)  - 75 Gold");
             Console.WriteLine("5. 🛡️ Blacksmith Armor (+5 Armor)   - 30 Gold");
-            Console.WriteLine("6. 🔙 Exit Shop");
+            Console.WriteLine("6. ⚔️ Iron Sword (+3 DMG)       - 100 Gold");
+            Console.WriteLine("7. 🧪 Big Health Potion (+50 HP) - 40 Gold");
+            Console.WriteLine("8. 🔙 Exit Shop");
 
             Console.Write("> ");
             string choice = Console.ReadLine();
@@ -236,6 +242,25 @@ public class GameManager
                     TryBuyAttribute("Armor", 30, () => _player.Armor += 5);
                     break;
                 case "6":
+                    if (_player.Gold >= 100)
+                    {
+                        _player.Gold -= 100;
+                        _player.Inventory.Add(new Weapon("Iron Sword", 3, 100));
+                        Console.WriteLine("Bought Iron Sword!");
+                    }
+                    else Console.WriteLine("Not enough gold!");
+                    break;
+
+                case "7":
+                    if (_player.Gold >= 40)
+                    {
+                        _player.Gold -= 40;
+                        _player.Inventory.Add(new Consumable("Big Health Potion", 50, 40));
+                        Console.WriteLine("Bought Potion!");
+                    }
+                    else Console.WriteLine("Not enough gold!");
+                    break;
+                case "8":
                     inShop = false;
                     break;
                 default:
@@ -289,6 +314,84 @@ public class GameManager
                 Console.WriteLine("Not enough gold!");
             }
         }
+        Console.ReadKey();
+    }
+
+    private void OpenInventory()
+    {
+        bool inInventory = true;
+        while (inInventory)
+        {
+            Console.Clear();
+            Console.WriteLine("===Inventory===");
+
+            if (_player.EquippedWeapon != null)
+            {
+                Console.WriteLine($"Currently equipped: [{_player.EquippedWeapon.Name}]");
+
+            }
+            else
+            {
+                Console.WriteLine($"Currently equipped: Fists (0 DMG)");
+            }
+
+            Console.WriteLine("\n---Backpack---");
+            if (_player.Inventory.Count == 0)
+            {
+                Console.WriteLine("Empty");
+            }
+            else
+            {
+                for (int i = 0; i < _player.Inventory.Count; i++)
+                {
+                    Item item = _player.Inventory[i];
+                    string typeIcon = item.Type == ItemType.Weapon ? "⚔️" : "🧪";
+                    Console.WriteLine($"{i + 1}. {typeIcon} {item.Name} | {item.Description}");
+
+                }
+            }
+            Console.WriteLine("\n[Type number to use/equip item, or '0' to exit]");
+            Console.Write("> ");
+
+            if (int.TryParse(Console.ReadLine(), out int choice))
+            {
+                if (choice == 0)
+                {
+                    inInventory = false;
+                }
+                else if (choice > 0 && choice <= _player.Inventory.Count)
+                {
+                    Item selectedItem = _player.Inventory[choice - 1];
+                    UseItem(selectedItem);
+                }
+            }
+        }
+    }
+
+    private void UseItem(Item item)
+    {
+        if (item is Weapon newWeapon)
+        {
+            if (_player.EquippedWeapon != null)
+            {
+                _player.Inventory.Add(_player.EquippedWeapon);
+                Console.WriteLine($"You unequipped {_player.EquippedWeapon.Name}.");
+
+            }
+
+            _player.EquippedWeapon = newWeapon;
+            _player.Inventory.Remove(item);
+            Console.WriteLine($"You equipped {newWeapon.Name}!");
+        }
+        else if (item is Consumable potion)
+        {
+            _player.Heal(potion.HealAmount);
+            _player.Inventory.Remove(item);
+
+            Console.WriteLine($"You healed for {potion.HealAmount} HP.");
+
+        }
+        SaveGame();
         Console.ReadKey();
     }
 }

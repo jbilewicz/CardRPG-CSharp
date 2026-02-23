@@ -1,0 +1,46 @@
+<Window x:Class="CardRPG.UI.ShopWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="🛒 Shop" Height="520" Width="700"
+        Background="#1E1E2E"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,15">
+            <TextBlock Text="🛒 SHOP" FontSize="26" FontWeight="Bold"
+                       Foreground="Gold" VerticalAlignment="Center"/>
+            <TextBlock x:Name="GoldTxt" Text="Gold: 0"
+                       Foreground="Gold" FontSize="16"
+                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        </DockPanel>
+
+        <ListView x:Name="ShopList" Grid.Row="1"
+                  Background="#12121C" Foreground="White"
+                  FontSize="14" BorderBrush="#444">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Item" Width="180" DisplayMemberBinding="{Binding Name}"/>
+                    <GridViewColumn Header="Description" Width="240" DisplayMemberBinding="{Binding Description}"/>
+                    <GridViewColumn Header="Price" Width="80" DisplayMemberBinding="{Binding Price}"/>
+                    <GridViewColumn Header="Type" Width="100" DisplayMemberBinding="{Binding Type}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <TextBlock x:Name="StatusTxt" Foreground="LightGreen" FontSize="13"
+                       VerticalAlignment="Center" Margin="0,0,20,0"/>
+            <Button Content="Buy Selected" Width="130" Height="38"
+                    Background="DarkGoldenrod" Foreground="White" FontWeight="Bold"
+                    Click="BuyButton_Click" Margin="0,0,10,0"/>
+            <Button Content="Close" Width="80" Height="38"
+                    Background="#555" Foreground="White"
+                    Click="CloseButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

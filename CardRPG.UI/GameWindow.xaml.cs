@@ -11,13 +11,11 @@ public partial class GameWindow : Window
     private readonly User _currentUser;
     private Player _player;
 
-    private static readonly List<(string Name, int Hp, int Dmg)> EnemyPool = new()
+    private static readonly List<(string Name, int Hp, int Dmg, bool IsBoss)> Stages = new()
     {
-        ("Goblin",       40,  8),
-        ("Orc Warrior",  70, 12),
-        ("Dark Mage",    55, 15),
-        ("Skeleton",     45, 10),
-        ("Troll",       100, 18),
+        ("Green Slime",   30,  4, false),
+        ("Goblin Scout",  50,  8, false),
+        ("Orc Warlord",  120, 12, true),
     };
 
     public GameWindow(User user)
@@ -32,19 +30,10 @@ public partial class GameWindow : Window
     {
         if (!string.IsNullOrEmpty(_currentUser.SavedGameData))
         {
-            try
-            {
-                _player = JsonSerializer.Deserialize<Player>(_currentUser.SavedGameData)!;
-            }
-            catch
-            {
-                _player = CreateNewPlayer();
-            }
+            try   { _player = JsonSerializer.Deserialize<Player>(_currentUser.SavedGameData)!; }
+            catch { _player = CreateNewPlayer(); }
         }
-        else
-        {
-            _player = CreateNewPlayer();
-        }
+        else { _player = CreateNewPlayer(); }
     }
 
     private Player CreateNewPlayer()
@@ -52,10 +41,10 @@ public partial class GameWindow : Window
         var p = new Player(_currentUser.Username);
         p.MasterDeck = new List<Card>
         {
-            new Card("Strike",  1, CardType.Attack,  6),
-            new Card("Strike",  1, CardType.Attack,  6),
-            new Card("Defend",  1, CardType.Defense, 5),
-            new Card("Defend",  1, CardType.Defense, 5),
+            new Card("Strike", 1, CardType.Attack,  6),
+            new Card("Strike", 1, CardType.Attack,  6),
+            new Card("Defend", 1, CardType.Defense, 5),
+            new Card("Defend", 1, CardType.Defense, 5),
         };
         return p;
     }
@@ -81,13 +70,50 @@ public partial class GameWindow : Window
 
     private void JourneyButton_Click(object sender, RoutedEventArgs e)
     {
-        var rng   = new Random();
-        var pick  = EnemyPool[rng.Next(EnemyPool.Count)];
-        var enemy = new Enemy(pick.Name, pick.Hp, pick.Dmg);
+        int totalStages = Stages.Count;
 
-        var combat = new CombatWindow(_player, enemy) { Owner = this };
-        combat.ShowDialog();
+        for (int i = 0; i < totalStages; i++)
+        {
+            var (name, hp, dmg, isBoss) = Stages[i];
+            int stageNumber = i + 1;
 
+            var enemy = new Enemy(name, hp, dmg, isBoss);
+            var combat = new CombatWindow(_player, enemy, stageNumber, totalStages) { Owner = this };
+            bool? result = combat.ShowDialog();
+
+            if (result != true)
+            {
+                UpdateUI();
+                SavePlayer();
+                return;
+            }
+
+            // Stage rewards
+            int heal = (int)(_player.MaxHp * 0.2);
+            _player.Heal(heal);
+
+            if (isBoss)
+            {
+                _player.Gold += 100;
+                var reward = new Card("Execute", 2, CardType.Attack, 25);
+                _player.MasterDeck.Add(reward);
+                MessageBox.Show(
+                    $"⚔️ BOSS DEFEATED!\n+100 Gold\n+NEW CARD: Execute (25 DMG)\n+{heal} HP restored.",
+                    $"Stage {stageNumber}/{totalStages} Cleared!");
+            }
+            else
+            {
+                int gold = new Random().Next(10, 21);
+                _player.Gold += gold;
+                MessageBox.Show(
+                    $"Stage {stageNumber}/{totalStages} cleared!\n+{gold} Gold\n+{heal} HP restored.",
+                    "Victory!");
+            }
+
+            UpdateUI();
+        }
+
+        MessageBox.Show("JOURNEY COMPLETE! You return to the city as a hero. 🏆", "Journey Complete");
         SavePlayer();
         UpdateUI();
     }
@@ -102,20 +128,10 @@ public partial class GameWindow : Window
 
     private void TavernButton_Click(object sender, RoutedEventArgs e)
     {
-        const int cost = 10;
-        const int heal = 30;
-
-        if (_player.Gold < cost)
-        {
-            MessageBox.Show($"You need {cost} gold to rest here.", "Tavern");
-            return;
-        }
-
-        _player.Gold    -= cost;
-        _player.Heal(heal);
+        var tavern = new TavernWindow(_player) { Owner = this };
+        tavern.ShowDialog();
         SavePlayer();
         UpdateUI();
-        MessageBox.Show($"You rested at the tavern. (+{heal} HP)", "Tavern");
     }
 
     private void InventoryButton_Click(object sender, RoutedEventArgs e)

@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using CardRPG.Core.Models;
 using CardRPG.Services;
 
@@ -12,23 +14,47 @@ public partial class CombatWindow : Window
     private readonly Enemy _enemy;
     private readonly CombatEngine _engine;
     private List<Card> _hand = new();
+    private readonly int _stage;
+    private readonly int _totalStages;
 
-    public CombatWindow(Player player, Enemy enemy)
+    public CombatWindow(Player player, Enemy enemy, int stage = 1, int totalStages = 3)
     {
         InitializeComponent();
         _player = player;
         _enemy = enemy;
+        _stage = stage;
+        _totalStages = totalStages;
         _engine = new CombatEngine(player, enemy);
+        SetEnemySprite();
         StartTurn();
+    }
+
+    private void SetEnemySprite()
+    {
+        string spritePath = _enemy.Name.ToLower() switch
+        {
+            var n when n.Contains("slime")                                    => "Assets/slime.png",
+            var n when n.Contains("goblin")                                   => "Assets/goblin.png",
+            var n when n.Contains("orc") || n.Contains("warlord") || _enemy.IsBoss => "Assets/arcwarlord.png",
+            _                                                                  => "Assets/slime.png"
+        };
+
+        try
+        {
+            EnemySprite.Source = new BitmapImage(
+                new Uri(spritePath, UriKind.Relative));
+        }
+        catch { }
     }
 
     private void StartTurn()
     {
+        _player.CurrentMana = _player.MaxMana;
         _player.Armor = 0;
         _hand = _engine.DrawHand();
         RefreshUI();
         RenderHand();
-        AddLog($"--- New Turn | Enemy intent: {_enemy.CurrentIntent} ({_enemy.IntentValue}) ---");
+        AddLog($"--- New Turn | Enemy: {_enemy.CurrentIntent} ({_enemy.IntentValue} dmg) ---");
     }
 
     private void RenderHand()
@@ -36,14 +62,57 @@ public partial class CombatWindow : Window
         HandPanel.Children.Clear();
         foreach (var card in _hand)
         {
+            bool canAfford = card.Cost <= _player.CurrentMana;
+
+            var cardContent = new StackPanel { Width = 105 };
+            cardContent.Children.Add(new TextBlock
+            {
+                Text = card.Type == CardType.Attack ? "⚔️" : "🛡️",
+                FontSize = 18,
+                HorizontalAlignment = HorizontalAlignment.Center
+            });
+            cardContent.Children.Add(new TextBlock
+            {
+                Text = card.Name,
+                FontWeight = FontWeights.Bold,
+                FontSize = 12,
+                Foreground = Brushes.White,
+                HorizontalAlignment = HorizontalAlignment.Center
+            });
+            cardContent.Children.Add(new TextBlock
+            {
+                Text = card.Description,
+                FontSize = 10,
+                Foreground = Brushes.LightGray,
+                TextWrapping = TextWrapping.Wrap,
+                HorizontalAlignment = HorizontalAlignment.Center
+            });
+            cardContent.Children.Add(new TextBlock
+            {
+                Text = $"Cost: {card.Cost}",
+                FontSize = 10,
+                Foreground = canAfford ? Brushes.MediumPurple : Brushes.Gray,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 4, 0, 0)
+            });
+
             var btn = new Button
             {
-                Content = $"{card.Name}\n{card.Description}\nCost: {card.Cost}",
+                Content = cardContent,
                 Tag = card,
-                Width = 110,
-                Height = 90,
-                Margin = new Thickness(5),
-                IsEnabled = card.Cost <= _player.CurrentMana
+                Width = 115,
+                Height = 100,
+                Margin = new Thickness(4),
+                IsEnabled = canAfford,
+                Background = new SolidColorBrush(
+                    card.Type == CardType.Attack
+                        ? Color.FromRgb(80, 20, 20)
+                        : Color.FromRgb(20, 40, 80)),
+                BorderBrush = new SolidColorBrush(
+                    card.Type == CardType.Attack ? Colors.OrangeRed : Colors.CornflowerBlue),
+                BorderThickness = new Thickness(1),
+                Foreground = Brushes.White,
+                Padding = new Thickness(4)
             };
             btn.Click += CardButton_Click;
             HandPanel.Children.Add(btn);
@@ -57,7 +126,7 @@ public partial class CombatWindow : Window
 
         if (card.Cost > _player.CurrentMana)
         {
-            AddLog("Not enough Mana!");
+            AddLog("❌ Not enough Mana!");
             return;
         }
 
@@ -69,9 +138,9 @@ public partial class CombatWindow : Window
         _engine.PlayCard(card);
 
         if (card.Type == CardType.Attack)
-            AddLog($"You played {card.Name} → dealt {enemyHpBefore - _enemy.CurrentHp} damage to {_enemy.Name}.");
+            AddLog($"⚔️ {card.Name} → {enemyHpBefore - _enemy.CurrentHp} damage to {_enemy.Name}.");
         else
-            AddLog($"You played {card.Name} → gained {_player.Armor - playerArmorBefore} armor.");
+            AddLog($"🛡️ {card.Name} → +{_player.Armor - playerArmorBefore} armor.");
 
         RefreshUI();
 
@@ -89,11 +158,11 @@ public partial class CombatWindow : Window
         int damageTaken = playerHpBefore - _player.CurrentHp;
 
         if (damageTaken > 0)
-            AddLog($"{_enemy.Name} attacked you for {damageTaken} damage.");
+            AddLog($"💢 {_enemy.Name} hit you for {damageTaken} damage.");
         else if (_enemy.CurrentIntent == EnemyIntent.Defend)
-            AddLog($"{_enemy.Name} healed itself.");
+            AddLog($"⚕️ {_enemy.Name} healed itself.");
         else
-            AddLog("You dodged the attack!");
+            AddLog("💨 You dodged the attack!");
 
         RefreshUI();
 
@@ -109,11 +178,7 @@ public partial class CombatWindow : Window
 
     private void HandleVictory()
     {
-        int gold = 10 + new Random().Next(5, 15);
-        _player.Gold += gold;
-        AddLog($"Victory! You earned {gold} gold.");
         RefreshUI();
-        MessageBox.Show($"Victory! You earned {gold} Gold.", "Victory!");
         DialogResult = true;
         Close();
     }
@@ -121,25 +186,28 @@ public partial class CombatWindow : Window
     private void HandleDefeat()
     {
         _player.CurrentHp = 1;
-        AddLog("Defeat...");
+        _player.Gold = Math.Max(0, _player.Gold - 10);
         RefreshUI();
-        MessageBox.Show("You were defeated...", "Defeat");
+        MessageBox.Show("You were defeated and dragged back to town.\n-10 Gold.", "Defeat");
         DialogResult = false;
         Close();
     }
 
     private void RefreshUI()
     {
+        StageTxt.Text = $"Stage {_stage} / {_totalStages}";
+
         EnemyNameTxt.Text = _enemy.Name;
+        EnemyNameSmallTxt.Text = _enemy.Name;
         EnemyIntentTxt.Text = $"Intent: {_enemy.CurrentIntent} ({_enemy.IntentValue})";
         EnemyHpBar.Maximum = _enemy.MaxHp;
         EnemyHpBar.Value = _enemy.CurrentHp;
-        EnemyHpTxt.Text = $"{_enemy.CurrentHp}/{_enemy.MaxHp}";
+        EnemyHpTxt.Text = $"{_enemy.CurrentHp} / {_enemy.MaxHp} HP";
 
         PlayerHpBar.Maximum = _player.MaxHp;
         PlayerHpBar.Value = _player.CurrentHp;
-        PlayerHpTxt.Text = $"HP: {_player.CurrentHp}/{_player.MaxHp}";
-        PlayerManaTxt.Text = $"Mana: {_player.CurrentMana}/{_player.MaxMana}";
+        PlayerHpTxt.Text = $"{_player.CurrentHp} / {_player.MaxHp} HP";
+        PlayerManaTxt.Text = $"{_player.CurrentMana}/{_player.MaxMana}";
         PlayerArmorTxt.Text = $"Armor: {_player.Armor}";
     }
 

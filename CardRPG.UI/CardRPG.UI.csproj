@@ -12,4 +12,8 @@
     <ProjectReference Include="..\CardRPG.Core\CardRPG.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="Assets\**\*" />
+  </ItemGroup>
+
 </Project>

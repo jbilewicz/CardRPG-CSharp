@@ -1,46 +1,107 @@
 <Window x:Class="CardRPG.UI.ShopWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="🛒 Shop" Height="520" Width="700"
-        Background="#1E1E2E"
-        WindowStartupLocation="CenterOwner">
-    <Grid Margin="15">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        Title="🛒 Shop" Height="600" Width="820"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="Black">
 
-        <DockPanel Grid.Row="0" Margin="0,0,0,15">
-            <TextBlock Text="🛒 SHOP" FontSize="26" FontWeight="Bold"
-                       Foreground="Gold" VerticalAlignment="Center"/>
-            <TextBlock x:Name="GoldTxt" Text="Gold: 0"
-                       Foreground="Gold" FontSize="16"
-                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
-        </DockPanel>
+    <Grid>
+        <Image Source="Assets/bg_shop.png" Stretch="Fill"
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <Rectangle Fill="#CC08100A"/>
 
-        <ListView x:Name="ShopList" Grid.Row="1"
-                  Background="#12121C" Foreground="White"
-                  FontSize="14" BorderBrush="#444">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Item" Width="180" DisplayMemberBinding="{Binding Name}"/>
-                    <GridViewColumn Header="Description" Width="240" DisplayMemberBinding="{Binding Description}"/>
-                    <GridViewColumn Header="Price" Width="80" DisplayMemberBinding="{Binding Price}"/>
-                    <GridViewColumn Header="Type" Width="100" DisplayMemberBinding="{Binding Type}"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
+        <Grid Margin="20,16,20,16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
-            <TextBlock x:Name="StatusTxt" Foreground="LightGreen" FontSize="13"
-                       VerticalAlignment="Center" Margin="0,0,20,0"/>
-            <Button Content="Buy Selected" Width="130" Height="38"
-                    Background="DarkGoldenrod" Foreground="White" FontWeight="Bold"
-                    Click="BuyButton_Click" Margin="0,0,10,0"/>
-            <Button Content="Close" Width="80" Height="38"
-                    Background="#555" Foreground="White"
-                    Click="CloseButton_Click"/>
-        </StackPanel>
+            <!-- Header -->
+            <DockPanel Grid.Row="0" Grid.ColumnSpan="3" Margin="0,0,0,14">
+                <TextBlock Text="🛒 GENERAL STORE" FontSize="24" FontWeight="Bold"
+                           Foreground="Gold" VerticalAlignment="Center"/>
+                <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
+                    <TextBlock x:Name="GoldTxt" Text="Gold: 0"
+                               Foreground="Gold" FontSize="16" FontWeight="Bold"/>
+                    <TextBlock x:Name="StatsTxt" Text="" Foreground="#AAD0AA" FontSize="11"/>
+                </StackPanel>
+            </DockPanel>
+
+            <!-- LEFT: Stat upgrades -->
+            <Border Grid.Row="1" Grid.Column="0"
+                    Background="#AA000000" CornerRadius="6" Padding="12">
+                <StackPanel>
+                    <TextBlock Text="⚡ Stat Upgrades" Foreground="Gold"
+                               FontSize="15" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                    <Button Content="💪 Strength +1  (50g)"  Height="38" Margin="0,0,0,6"
+                            Background="#4A1010" Foreground="White" FontSize="13"
+                            Click="BuyStrength_Click"/>
+                    <Button Content="🦵 Agility +1   (50g)"  Height="38" Margin="0,0,0,6"
+                            Background="#103A10" Foreground="White" FontSize="13"
+                            Click="BuyAgility_Click"/>
+                    <Button Content="🧠 Intelligence +1 (50g)" Height="38" Margin="0,0,0,6"
+                            Background="#10204A" Foreground="White" FontSize="13"
+                            Click="BuyIntelligence_Click"/>
+                    <Button Content="❤️ Max HP +10  (75g)"  Height="38" Margin="0,0,0,6"
+                            Background="#4A1030" Foreground="White" FontSize="13"
+                            Click="BuyMaxHp_Click"/>
+                    <Button Content="🛡️ Armor +5    (30g)"   Height="38" Margin="0,0,0,6"
+                            Background="#204040" Foreground="White" FontSize="13"
+                            Click="BuyArmor_Click"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Spacer column -->
+            <Rectangle Grid.Row="1" Grid.Column="1"/>
+
+            <!-- RIGHT: Items -->
+            <Border Grid.Row="1" Grid.Column="2"
+                    Background="#AA000000" CornerRadius="6" Padding="12">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="🎒 Items"
+                               Foreground="Gold" FontSize="15" FontWeight="Bold"
+                               Margin="0,0,0,10"/>
+                    <Button DockPanel.Dock="Bottom" Content="🛒 Buy Selected"
+                            Height="38" Margin="0,10,0,0"
+                            Background="DarkGoldenrod" Foreground="White" FontWeight="Bold"
+                            Click="BuyItem_Click"/>
+                    <ListView x:Name="ShopList"
+                              Background="Transparent" Foreground="White"
+                              FontSize="13" BorderBrush="#555">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Name"  Width="130"
+                                               DisplayMemberBinding="{Binding Name}"/>
+                                <GridViewColumn Header="Info"  Width="150"
+                                               DisplayMemberBinding="{Binding Description}"/>
+                                <GridViewColumn Header="Price" Width="50"
+                                               DisplayMemberBinding="{Binding Price}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </DockPanel>
+            </Border>
+
+            <!-- Status bar -->
+            <Border Grid.Row="2" Grid.ColumnSpan="3"
+                    Background="#AA000000" CornerRadius="4"
+                    Padding="10,6" Margin="0,10,0,0">
+                <DockPanel>
+                    <TextBlock x:Name="StatusTxt" Foreground="LightGreen" FontSize="13"/>
+                    <Button DockPanel.Dock="Right" Content="Close"
+                            Width="80" Height="32"
+                            Background="#555" Foreground="White"
+                            Click="CloseButton_Click"/>
+                </DockPanel>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

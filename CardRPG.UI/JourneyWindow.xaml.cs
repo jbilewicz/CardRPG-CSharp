@@ -73,7 +73,7 @@ public partial class JourneyWindow : Window
             var headerPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 6) };
             headerPanel.Children.Add(new TextBlock
             {
-                Text = unlocked ? realm.Icon : "🔒",
+                Text = unlocked ? realm.Icon : "[?]",
                 FontSize = 28,
                 Margin = new Thickness(0, 0, 8, 0),
                 VerticalAlignment = VerticalAlignment.Center
@@ -120,7 +120,7 @@ public partial class JourneyWindow : Window
 
                 stack.Children.Add(new TextBlock
                 {
-                    Text = $"🗡️ {realm.Stages.Count} stages  •  💰 {realm.GoldReward}g  •  ⭐ {realm.XpReward} XP",
+                    Text = $"{realm.Stages.Count} stages  |  {realm.GoldReward}g  |  {realm.XpReward} XP",
                     FontSize = 11,
                     Foreground = new SolidColorBrush(Color.FromRgb(0x88, 0x88, 0x7A)),
                     Margin = new Thickness(0, 0, 0, 4)
@@ -130,7 +130,7 @@ public partial class JourneyWindow : Window
                 {
                     stack.Children.Add(new TextBlock
                     {
-                        Text = $"🎴 Reward: {realm.CardReward.Name}",
+                        Text = $"Reward: {realm.CardReward.Name} [{realm.CardReward.Rarity}]",
                         FontSize = 11,
                         Foreground = new SolidColorBrush(Color.FromRgb(0xFF, 0xCC, 0x44)),
                         Margin = new Thickness(0, 0, 0, 8)
@@ -154,7 +154,7 @@ public partial class JourneyWindow : Window
             {
                 var enterBtn = new Button
                 {
-                    Content = "⚔️  ENTER REALM",
+                    Content = "ENTER REALM",
                     Tag = realm.Id,
                     Height = 38,
                     FontSize = 14,

@@ -26,8 +26,8 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="đź‘¤ " FontSize="18"/>
-                    <TextBlock x:Name="NameTxt" Text="Hero" FontSize="20" FontWeight="Bold">
+                    <TextBlock x:Name="NameTxt" Text="Hero" FontSize="20" FontWeight="Bold"
+                               Cursor="Hand" MouseLeftButtonDown="NameTxt_Click">
                         <TextBlock.Foreground>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                 <GradientStop Color="#FFD700" Offset="0"/>
@@ -39,24 +39,20 @@
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal"
                             HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="â­" FontSize="16" Margin="0,0,4,0"/>
                     <TextBlock Text="Lv." Foreground="#B8860B" FontSize="15" FontWeight="Bold"/>
                     <TextBlock x:Name="LevelTxt" Text="1" Foreground="#FFD700" FontSize="15"
                                FontWeight="Bold" Margin="0,0,16,0"/>
 
-                    <TextBlock Text="âť¤ď¸Ź" FontSize="16" Margin="0,0,4,0"/>
                     <TextBlock Text="HP:" Foreground="#FF6666" FontSize="15" FontWeight="Bold"/>
                     <TextBlock x:Name="HpTxt" Text="100/100" Foreground="White" FontSize="15"
                                Margin="4,0,16,0"/>
 
-                    <TextBlock Text="đź’§" FontSize="16" Margin="0,0,4,0"/>
                     <TextBlock Text="Mana:" Foreground="#6699FF" FontSize="15" FontWeight="Bold"/>
                     <TextBlock x:Name="ManaTxt" Text="3/3" Foreground="White" FontSize="15"
                                Margin="4,0,0,0"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="đź’°" FontSize="16" Margin="0,0,4,0"/>
                     <TextBlock x:Name="GoldTxt" Text="0" FontSize="17" FontWeight="Bold">
                         <TextBlock.Foreground>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -72,7 +68,6 @@
         </Border>
 
         <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="đźŹ°" FontSize="60" HorizontalAlignment="Center" Margin="0,0,0,6"/>
             <TextBlock Text="CITY HUB" FontSize="42" FontWeight="Bold"
                        HorizontalAlignment="Center">
                 <TextBlock.Foreground>
@@ -95,25 +90,30 @@
                 Padding="10,8">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 
-                <Button Content="âš”ď¸Ź  JOURNEY" Width="170" Height="56" Margin="8"
+                <Button Content="JOURNEY" Width="170" Height="56" Margin="8"
                         Style="{StaticResource RpgRedButton}"
                         FontSize="16"
                         Click="JourneyButton_Click"/>
 
-                <Button Content="đź›’  SHOP" Width="170" Height="56" Margin="8"
+                <Button Content="SHOP" Width="170" Height="56" Margin="8"
                         Style="{StaticResource RpgButton}"
                         FontSize="16"
                         Click="ShopButton_Click"/>
 
-                <Button Content="đźŤş  TAVERN" Width="170" Height="56" Margin="8"
+                <Button Content="TAVERN" Width="170" Height="56" Margin="8"
                         Style="{StaticResource RpgButton}"
                         FontSize="16"
                         Click="TavernButton_Click"/>
 
-                <Button Content="đźŽ’  INVENTORY" Width="170" Height="56" Margin="8"
+                <Button Content="INVENTORY" Width="170" Height="56" Margin="8"
                         Style="{StaticResource RpgTealButton}"
                         FontSize="16"
                         Click="InventoryButton_Click"/>
+
+                <Button Content="ARENA" Width="170" Height="56" Margin="8"
+                        Style="{StaticResource RpgGreenButton}"
+                        FontSize="16"
+                        Click="ArenaButton_Click"/>
 
             </StackPanel>
         </Border>

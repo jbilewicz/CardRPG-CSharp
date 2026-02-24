@@ -13,12 +13,17 @@ public partial class ShopWindow : Window
 
     private readonly List<Item> _stock = new()
     {
-        new Weapon("Iron Sword",    3,  100),
-        new Weapon("Steel Blade",   8,  160),
-        new Weapon("Shadow Dagger", 14, 220),
-        new Consumable("Small Potion", 30, 15),
-        new Consumable("Big Potion",   50, 40),
-        new Consumable("Elixir",      100, 80),
+        new Weapon("Iron Sword",      3,  100),
+        new Weapon("Steel Blade",     8,  160),
+        new Weapon("Shadow Dagger",   14, 220),
+        new Weapon("Flame Axe",       20, 320),
+        new Weapon("Frost Claymore",  28, 450),
+        new Weapon("Void Reaper",     40, 700),
+        new Consumable("Small Potion",    30,  15),
+        new Consumable("Big Potion",      50,  40),
+        new Consumable("Elixir",         100,  80),
+        new Consumable("Grand Elixir",   200, 150),
+        new Consumable("Phoenix Tear",   500, 350),
     };
 
     public ShopWindow(Player player)
@@ -108,12 +113,14 @@ public partial class ShopWindow : Window
 
         if (item is Weapon w)
         {
-            _player.EquippedWeapon = w;
+            _player.EquippedWeapon = new Weapon(w.Name, w.DamageBonus, 0);
             ShowStatus($"Equipped {w.Name}!");
         }
         else
         {
-            _player.Inventory.Add(item);
+            _player.Inventory.Add(item is Consumable c
+                ? new Consumable(c.Name, c.HealAmount, 0)
+                : new Item(item.Name, item.Description, 0, item.Type));
             ShowStatus($"Bought {item.Name}!");
         }
         RefreshUI();

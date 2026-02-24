@@ -1,7 +1,7 @@
 ﻿<Window x:Class="CardRPG.UI.CombatWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="âš”ď¸Ź Battle!" Height="720" Width="1020"
+        Title="Battle!" Height="880" Width="1180"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="Black">
@@ -18,7 +18,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="140"/>
+                <RowDefinition Height="150"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
@@ -67,7 +67,7 @@
                             HorizontalAlignment="Center" Margin="0,0,0,8">
                     <Grid>
                         <Image x:Name="PlayerSprite" Source="Assets/Player.png"
-                               Height="190" HorizontalAlignment="Center"
+                               Height="260" HorizontalAlignment="Center"
                                RenderOptions.BitmapScalingMode="HighQuality"/>
                         <TextBlock x:Name="PlayerDmgPopup" Text="" FontSize="30"
                                    FontWeight="Bold" Foreground="#FF4444" Opacity="0"
@@ -87,15 +87,15 @@
                             <DropShadowEffect Color="LimeGreen" BlurRadius="6" ShadowDepth="0" Opacity="0.3"/>
                         </TextBlock.Effect>
                     </TextBlock>
-                    <ProgressBar x:Name="PlayerHpBar" Width="210"
+                    <ProgressBar x:Name="PlayerHpBar" Width="240"
                                  Style="{StaticResource HpBarStyle}"/>
                     <TextBlock x:Name="PlayerHpTxt" Foreground="White" FontSize="12"
                                FontWeight="Bold"
                                HorizontalAlignment="Center" Margin="0,3,0,0"/>
                 </StackPanel>
 
-                <TextBlock Grid.Column="1" Text="âš”ď¸Ź"
-                           FontSize="28" FontWeight="Bold"
+                <TextBlock Grid.Column="1" Text="VS"
+                           FontSize="28" FontWeight="Bold" Foreground="Gold"
                            VerticalAlignment="Center" HorizontalAlignment="Center">
                     <TextBlock.Effect>
                         <DropShadowEffect Color="Gold" BlurRadius="12" ShadowDepth="0" Opacity="0.5"/>
@@ -105,7 +105,7 @@
                 <StackPanel Grid.Column="2" VerticalAlignment="Bottom"
                             HorizontalAlignment="Center" Margin="0,0,0,8">
                     <Grid>
-                        <Image x:Name="EnemySprite" Height="190"
+                        <Image x:Name="EnemySprite" Height="260"
                                HorizontalAlignment="Center"
                                RenderOptions.BitmapScalingMode="HighQuality"/>
                         <TextBlock x:Name="EnemyDmgPopup" Text="" FontSize="30"
@@ -122,7 +122,7 @@
                     <TextBlock x:Name="EnemyNameSmallTxt" Foreground="OrangeRed"
                                FontSize="14" FontWeight="Bold"
                                HorizontalAlignment="Center" Margin="0,4,0,3"/>
-                    <ProgressBar x:Name="EnemyHpBar" Width="210"
+                    <ProgressBar x:Name="EnemyHpBar" Width="240"
                                  Style="{StaticResource EnemyHpBarStyle}"/>
                     <TextBlock x:Name="EnemyHpTxt" Foreground="White" FontSize="12"
                                FontWeight="Bold"
@@ -133,20 +133,23 @@
             <Border Grid.Row="2" Style="{StaticResource RpgPanel}"
                     Padding="14,6" Margin="0,0,0,6">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Text="đź’ś " FontSize="15"/>
+                    <TextBlock Text="Mana: " Foreground="MediumPurple" FontSize="15" FontWeight="Bold"/>
                     <TextBlock x:Name="PlayerManaTxt" Foreground="MediumPurple"
                                FontSize="15" FontWeight="Bold" Margin="0,0,30,0">
                         <TextBlock.Effect>
                             <DropShadowEffect Color="MediumPurple" BlurRadius="6" ShadowDepth="0" Opacity="0.3"/>
                         </TextBlock.Effect>
                     </TextBlock>
-                    <TextBlock Text="đź›ˇď¸Ź " FontSize="15"/>
+                    <TextBlock Text="Armor: " Foreground="CornflowerBlue" FontSize="15" FontWeight="Bold"/>
                     <TextBlock x:Name="PlayerArmorTxt" Foreground="CornflowerBlue"
                                FontSize="15" FontWeight="Bold">
                         <TextBlock.Effect>
                             <DropShadowEffect Color="CornflowerBlue" BlurRadius="6" ShadowDepth="0" Opacity="0.3"/>
                         </TextBlock.Effect>
                     </TextBlock>
+                    <TextBlock Text="      " FontSize="15"/>
+                    <TextBlock x:Name="StatusEffectsTxt" Foreground="#FFCC44"
+                               FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
@@ -164,7 +167,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="âś‹ Your Hand" FontSize="14" FontWeight="Bold"
+                    <TextBlock Grid.Column="0" Text="Your Hand" FontSize="14" FontWeight="Bold"
                                VerticalAlignment="Center" Margin="0,0,0,0">
                         <TextBlock.Foreground>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -173,7 +176,7 @@
                             </LinearGradientBrush>
                         </TextBlock.Foreground>
                     </TextBlock>
-                    <Button x:Name="EndTurnBtn" Grid.Column="1" Content="âŹ­ď¸Ź  END TURN"
+                    <Button x:Name="EndTurnBtn" Grid.Column="1" Content="NEW HAND"
                             Width="160" Height="42"
                             Style="{StaticResource RpgRedButton}"
                             FontSize="14"

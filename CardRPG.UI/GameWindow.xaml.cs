@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Input;
 using CardRPG.Core.Data;
 using CardRPG.Core.Models;
 
@@ -32,15 +33,7 @@ public partial class GameWindow : Window
     private Player CreateNewPlayer()
     {
         var p = new Player(_currentUser.Username);
-        p.MasterDeck = new List<Card>
-        {
-            new Card("Strike", 1, CardType.Attack, 6),
-            new Card("Strike", 1, CardType.Attack, 6),
-            new Card("Defend", 1, CardType.Defense, 5),
-            new Card("Defend", 1, CardType.Defense, 5),
-            new Card("Quick Slash", 1, CardType.Attack, 4, "A swift blade strike."),
-            new Card("Heal", 1, CardType.Power, 12, "Restore 12 HP."),
-        };
+        p.MasterDeck = CardLibrary.GetStarterDeck();
         return p;
     }
 
@@ -64,95 +57,110 @@ public partial class GameWindow : Window
         GoldTxt.Text = _player.Gold.ToString();
     }
 
+    private void NameTxt_Click(object sender, MouseButtonEventArgs e)
+    {
+        var statsWin = new PlayerStatsWindow(_player) { Owner = this };
+        statsWin.ShowDialog();
+    }
+
     private void JourneyButton_Click(object sender, RoutedEventArgs e)
     {
-        var journeyWin = new JourneyWindow(_player) { Owner = this };
-        bool? picked = journeyWin.ShowDialog();
-
-        if (picked != true || journeyWin.SelectedRealmId == null)
+        try
         {
-            UpdateUI();
-            return;
-        }
+            var journeyWin = new JourneyWindow(_player) { Owner = this };
+            bool? picked = journeyWin.ShowDialog();
 
-        int realmId = journeyWin.SelectedRealmId.Value;
-        var realm = Realm.GetAllRealms().FirstOrDefault(r => r.Id == realmId);
-        if (realm == null) return;
-
-        int totalStages = realm.Stages.Count;
-
-        for (int i = 0; i < totalStages; i++)
-        {
-            var stage = realm.Stages[i];
-            int stageNumber = i + 1;
-
-            var enemy = new Enemy(stage.EnemyName, stage.EnemyHp, stage.EnemyDmg, stage.IsBoss);
-            var combat = new CombatWindow(_player, enemy, stageNumber, totalStages, realm.Name) { Owner = this };
-            bool? result = combat.ShowDialog();
-
-            if (result != true)
+            if (picked != true || journeyWin.SelectedRealmId == null)
             {
                 UpdateUI();
-                SavePlayer();
                 return;
             }
 
-            int heal = (int)(_player.MaxHp * 0.25);
-            _player.Heal(heal);
+            int realmId = journeyWin.SelectedRealmId.Value;
+            var realm = Realm.GetAllRealms().FirstOrDefault(r => r.Id == realmId);
+            if (realm == null) return;
 
-            if (stage.IsBoss)
+            var rng = new Random();
+            int totalStages = realm.Stages.Count;
+
+            for (int i = 0; i < totalStages; i++)
             {
-                _player.Gold += realm.GoldReward;
-                bool leveledUp = _player.GainXp(realm.XpReward);
+                var stage = realm.Stages[i];
+                int stageNumber = i + 1;
 
-                string msg = $"⚔️ {realm.Name} CONQUERED!\n\n" +
-                             $"+{realm.GoldReward} Gold\n" +
-                             $"+{realm.XpReward} XP\n" +
-                             $"+{heal} HP restored";
+                var enemy = new Enemy(stage.EnemyName, stage.EnemyHp, stage.EnemyDmg, stage.IsBoss);
+                var combat = new CombatWindow(_player, enemy, stageNumber, totalStages, realm.Name) { Owner = this };
+                bool? result = combat.ShowDialog();
 
-                if (realm.CardReward != null)
+                if (result != true)
                 {
-                    _player.MasterDeck.Add(new Card(
-                        realm.CardReward.Name,
-                        realm.CardReward.Cost,
-                        realm.CardReward.Type,
-                        realm.CardReward.Value,
-                        realm.CardReward.Description));
-                    msg += $"\n🎴 NEW CARD: {realm.CardReward.Name}!";
+                    UpdateUI();
+                    SavePlayer();
+                    return;
                 }
 
-                if (leveledUp)
-                    msg += $"\n\n⭐ LEVEL UP! You are now Level {_player.Level}!";
+                int heal = (int)(_player.MaxHp * 0.25);
+                _player.Heal(heal);
 
-                if (realm.Id >= _player.MaxRealmUnlocked && realm.Id < 10)
+                if (stage.IsBoss)
                 {
-                    _player.MaxRealmUnlocked = realm.Id + 1;
-                    var nextRealm = Realm.GetAllRealms().FirstOrDefault(r => r.Id == realm.Id + 1);
-                    if (nextRealm != null)
-                        msg += $"\n🔓 New realm unlocked: {nextRealm.Name}!";
+                    _player.Gold += realm.GoldReward;
+                    bool leveledUp = _player.GainXp(realm.XpReward);
+
+                    string msg = $"{realm.Name} CONQUERED!\n\n" +
+                                 $"+{realm.GoldReward} Gold\n" +
+                                 $"+{realm.XpReward} XP\n" +
+                                 $"+{heal} HP restored";
+
+                    if (realm.CardReward != null)
+                    {
+                        _player.MasterDeck.Add(realm.CardReward.Clone());
+                        msg += $"\nNEW CARD: {realm.CardReward.Name}!";
+                    }
+
+                    var bossCard = CardLibrary.GetBossDropCard(rng, realm.Id);
+                    _player.MasterDeck.Add(bossCard);
+                    msg += $"\nBOSS DROP: {bossCard.Name} [{bossCard.Rarity}]!";
+
+                    if (leveledUp)
+                        msg += $"\n\nLEVEL UP! You are now Level {_player.Level}!";
+
+                    if (realm.Id >= _player.MaxRealmUnlocked && realm.Id < 10)
+                    {
+                        _player.MaxRealmUnlocked = realm.Id + 1;
+                        var nextRealm = Realm.GetAllRealms().FirstOrDefault(r => r.Id == realm.Id + 1);
+                        if (nextRealm != null)
+                            msg += $"\nNew realm unlocked: {nextRealm.Name}!";
+                    }
+
+                    MessageBox.Show(msg, $"Realm {realm.Id} Complete!");
+                }
+                else
+                {
+                    int gold = rng.Next(8, 18);
+                    int xp = realm.XpReward / totalStages;
+                    _player.Gold += gold;
+                    bool leveledUp = _player.GainXp(xp);
+
+                    string msg = $"Stage {stageNumber}/{totalStages} cleared!\n+{gold} Gold\n+{xp} XP\n+{heal} HP restored";
+                    if (leveledUp)
+                        msg += $"\n\nLEVEL UP! You are now Level {_player.Level}!";
+
+                    MessageBox.Show(msg, "Victory!");
                 }
 
-                MessageBox.Show(msg, $"Realm {realm.Id} Complete!");
-            }
-            else
-            {
-                int gold = new Random().Next(8, 18);
-                int xp = realm.XpReward / totalStages;
-                _player.Gold += gold;
-                bool leveledUp = _player.GainXp(xp);
-
-                string msg = $"Stage {stageNumber}/{totalStages} cleared!\n+{gold} Gold\n+{xp} XP\n+{heal} HP restored";
-                if (leveledUp)
-                    msg += $"\n\n⭐ LEVEL UP! You are now Level {_player.Level}!";
-
-                MessageBox.Show(msg, "Victory!");
+                UpdateUI();
             }
 
+            SavePlayer();
             UpdateUI();
         }
-
-        SavePlayer();
-        UpdateUI();
+        catch (Exception ex)
+        {
+            MessageBox.Show($"An error occurred: {ex.Message}", "Error");
+            SavePlayer();
+            UpdateUI();
+        }
     }
 
     private void ShopButton_Click(object sender, RoutedEventArgs e)
@@ -175,6 +183,14 @@ public partial class GameWindow : Window
     {
         var inv = new InventoryWindow(_player) { Owner = this };
         inv.ShowDialog();
+        SavePlayer();
+        UpdateUI();
+    }
+
+    private void ArenaButton_Click(object sender, RoutedEventArgs e)
+    {
+        var arena = new ArenaWindow(_player) { Owner = this };
+        arena.ShowDialog();
         SavePlayer();
         UpdateUI();
     }

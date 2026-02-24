@@ -1,41 +1,72 @@
 ﻿<Window x:Class="CardRPG.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="CardRPG - Login" Height="450" Width="800"
+        Title="CardRPG - Login" Height="500" Width="850"
+        WindowStartupLocation="CenterScreen"
         Background="Black">
-    
+
     <Grid>
-        <Image Source="Assets/bg_mainmenu.png" Stretch="Fill"
+        <!-- Background -->
+        <Image Source="Assets/bg_login.jpg" Stretch="Fill"
                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-        <TextBlock Text="⚔️ CardRPG ⚔️" 
-                   FontSize="40" 
-                   Foreground="Gold" 
-                   HorizontalAlignment="Center" 
-                   VerticalAlignment="Top" 
-                   Margin="0,50,0,0" 
-                   FontWeight="Bold"/>
+        <Rectangle Fill="#BB000000"/>
 
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="300"
-                    Background="#BB000000">
-            
-            <TextBlock Text="Username:" Foreground="White" Margin="0,0,0,5"/>
-            <TextBox x:Name="UsernameBox" Height="30" FontSize="16"/>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 
-            <TextBlock Text="Password:" Foreground="White" Margin="0,10,0,5"/>
-            <PasswordBox x:Name="PasswordBox" Height="30" FontSize="16"/>
+            <!-- Title with glow -->
+            <TextBlock Text="⚔️ CardRPG ⚔️"
+                       FontSize="48" FontWeight="Bold"
+                       HorizontalAlignment="Center" Margin="0,0,0,8">
+                <TextBlock.Foreground>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#FFD700" Offset="0"/>
+                        <GradientStop Color="#FFA500" Offset="0.5"/>
+                        <GradientStop Color="#FFD700" Offset="1"/>
+                    </LinearGradientBrush>
+                </TextBlock.Foreground>
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="#FFD700" BlurRadius="25" ShadowDepth="0" Opacity="0.6"/>
+                </TextBlock.Effect>
+            </TextBlock>
 
-            <Button x:Name="LoginButton" Content="LOGIN" 
-                    Height="40" Margin="0,20,0,0" 
-                    Background="Green" Foreground="White" FontWeight="Bold"
-                    Click="LoginButton_Click"/>
-            
-            <Button x:Name="RegisterButton" Content="REGISTER" 
-                    Height="40" Margin="0,10,0,0" 
-                    Background="#444" Foreground="White"
-                    Click="RegisterButton_Click"/>
+            <TextBlock Text="Enter the realm of cards and combat"
+                       FontSize="13" Foreground="#8B8B7A"
+                       HorizontalAlignment="Center" Margin="0,0,0,30"/>
 
-            <TextBlock x:Name="StatusText" Text="" Foreground="Red" 
-                       HorizontalAlignment="Center" Margin="0,10,0,0"/>
+            <!-- Login panel with ornate border -->
+            <Border Style="{StaticResource RpgPanel}" Width="340">
+                <StackPanel>
+                    <TextBlock Text="Username" Foreground="#C0B090" FontSize="13" Margin="0,0,0,4"/>
+                    <TextBox x:Name="UsernameBox" Height="34" FontSize="15"
+                             Background="#22FFFFFF" Foreground="White" CaretBrush="Gold"
+                             BorderBrush="#555" Padding="6,4"/>
+
+                    <TextBlock Text="Password" Foreground="#C0B090" FontSize="13" Margin="0,14,0,4"/>
+                    <PasswordBox x:Name="PasswordBox" Height="34" FontSize="15"
+                                 Background="#22FFFFFF" Foreground="White" CaretBrush="Gold"
+                                 BorderBrush="#555" Padding="6,4"/>
+
+                    <Button x:Name="LoginButton" Content="⚔️  LOGIN"
+                            Height="44" Margin="0,22,0,0"
+                            Style="{StaticResource RpgGreenButton}"
+                            FontSize="16"
+                            Click="LoginButton_Click"/>
+
+                    <Button x:Name="RegisterButton" Content="📜  REGISTER"
+                            Height="40" Margin="0,10,0,0"
+                            Style="{StaticResource RpgSubtleButton}"
+                            Click="RegisterButton_Click"/>
+
+                    <TextBlock x:Name="StatusText" Text="" Foreground="Red"
+                               HorizontalAlignment="Center" Margin="0,12,0,0"
+                               FontSize="13">
+                        <TextBlock.Effect>
+                            <DropShadowEffect Color="Red" BlurRadius="8" ShadowDepth="0" Opacity="0.4"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
         </StackPanel>
     </Grid>
 </Window>

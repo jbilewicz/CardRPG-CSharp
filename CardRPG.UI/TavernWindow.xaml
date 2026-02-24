@@ -1,7 +1,7 @@
 <Window x:Class="CardRPG.UI.TavernWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="🍺 Tavern" Height="440" Width="680"
+        Title="🍺 Tavern" Height="480" Width="720"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="Black">
@@ -19,41 +19,81 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
+            <!-- Title -->
             <TextBlock Grid.Row="0" Text="🍺 THE RUSTY FLAGON"
-                       FontSize="28" FontWeight="Bold" Foreground="Gold"
-                       HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                       FontSize="30" FontWeight="Bold"
+                       HorizontalAlignment="Center" Margin="0,0,0,4">
+                <TextBlock.Foreground>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#FFD700" Offset="0"/>
+                        <GradientStop Color="#FFA500" Offset="0.5"/>
+                        <GradientStop Color="#FFD700" Offset="1"/>
+                    </LinearGradientBrush>
+                </TextBlock.Foreground>
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="#FFD700" BlurRadius="20" ShadowDepth="0" Opacity="0.4"/>
+                </TextBlock.Effect>
+            </TextBlock>
             <TextBlock Grid.Row="1" Text="Rest your weary bones, adventurer."
                        FontSize="13" Foreground="#BBAA88"
                        HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
-            <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock x:Name="HpTxt" Text="HP: 100/100"
-                           Foreground="LightGreen" FontSize="16"
-                           HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                <TextBlock x:Name="GoldTxt" Text="Gold: 0"
-                           Foreground="Gold" FontSize="16"
-                           HorizontalAlignment="Center" Margin="0,0,0,25"/>
+            <!-- Center content -->
+            <Border Grid.Row="2" Style="{StaticResource RpgPanel}"
+                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Padding="30,20" MinWidth="360">
+                <StackPanel HorizontalAlignment="Center">
+                    <!-- HP Display -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,4">
+                        <TextBlock Text="❤️ " FontSize="18"/>
+                        <TextBlock x:Name="HpTxt" Text="HP: 100/100"
+                                   Foreground="LightGreen" FontSize="18" FontWeight="Bold">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="LimeGreen" BlurRadius="6" ShadowDepth="0" Opacity="0.3"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                    </StackPanel>
 
-                <Button Content="🍖 Meal — Heal 30 HP  (10g)"
-                        Width="260" Height="46" Margin="0,0,0,12"
-                        Background="#5C3013" Foreground="White"
-                        FontSize="14" FontWeight="Bold"
-                        Click="MealButton_Click"/>
+                    <!-- Gold Display -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,28">
+                        <TextBlock Text="💰 " FontSize="18"/>
+                        <TextBlock x:Name="GoldTxt" Text="Gold: 0"
+                                   FontSize="18" FontWeight="Bold">
+                            <TextBlock.Foreground>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#FFD700" Offset="0"/>
+                                    <GradientStop Color="#FFA500" Offset="1"/>
+                                </LinearGradientBrush>
+                            </TextBlock.Foreground>
+                        </TextBlock>
+                    </StackPanel>
 
-                <Button Content="🛏️ Full Rest — Heal fully  (30g)"
-                        Width="260" Height="46" Margin="0,0,0,12"
-                        Background="#3A2060" Foreground="White"
-                        FontSize="14" FontWeight="Bold"
-                        Click="RestButton_Click"/>
-            </StackPanel>
+                    <!-- Actions -->
+                    <Button Content="🍖  Meal — Heal 30 HP  (10g)"
+                            Width="280" Height="50" Margin="0,0,0,12"
+                            Style="{StaticResource RpgButton}"
+                            FontSize="14"
+                            Click="MealButton_Click"/>
 
-            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
-                <TextBlock x:Name="StatusTxt" Foreground="LightGreen" FontSize="13"
-                           VerticalAlignment="Center" Margin="0,0,16,0"/>
-                <Button Content="Leave" Width="90" Height="36"
-                        Background="#444" Foreground="White"
-                        Click="LeaveButton_Click"/>
-            </StackPanel>
+                    <Button Content="🛏️  Full Rest — Heal fully  (30g)"
+                            Width="280" Height="50" Margin="0,0,0,0"
+                            Style="{StaticResource RpgGreenButton}"
+                            FontSize="14"
+                            Click="RestButton_Click"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Bottom bar -->
+            <Border Grid.Row="3" Style="{StaticResource RpgPanel}"
+                    Padding="10,6" Margin="0,16,0,0">
+                <DockPanel>
+                    <TextBlock x:Name="StatusTxt" Foreground="LimeGreen" FontSize="14"
+                               VerticalAlignment="Center"/>
+                    <Button DockPanel.Dock="Right" Content="Leave" Width="100" Height="36"
+                            Style="{StaticResource RpgSubtleButton}"
+                            Click="LeaveButton_Click"/>
+                </DockPanel>
+            </Border>
         </Grid>
     </Grid>
 </Window>

@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using CardRPG.Core.Models;
 
 namespace CardRPG.UI;
@@ -28,67 +31,125 @@ public partial class ShopWindow : Window
 
     private void RefreshUI()
     {
-        GoldTxt.Text = $"Gold: {_player.Gold}";
-        StatsTxt.Text = $"STR {_player.Strength}  AGI {_player.Agility}  INT {_player.Intelligence}  MaxHP {_player.MaxHp}";
+        GoldTxt.Text = _player.Gold.ToString();
+        StrValueTxt.Text   = _player.Strength.ToString();
+        AgiValueTxt.Text   = _player.Agility.ToString();
+        IntValueTxt.Text   = _player.Intelligence.ToString();
+        HpValueTxt.Text    = _player.MaxHp.ToString();
+        ArmorValueTxt.Text = _player.Armor.ToString();
     }
 
-    private void TryBuy(int cost, System.Action onSuccess)
+    private bool TryBuy(int cost)
     {
         if (_player.Gold < cost)
         {
-            Show($"Need {cost - _player.Gold} more gold.", error: true);
-            return;
+            ShowStatus($"Need {cost - _player.Gold} more gold!", error: true);
+            return false;
         }
         _player.Gold -= cost;
-        onSuccess();
-        RefreshUI();
+        return true;
     }
 
-    private void BuyStrength_Click(object sender, RoutedEventArgs e)
-        => TryBuy(50, () => { _player.Strength++; Show("Strength +1!"); });
+    private async void BuyStrength_Click(object sender, RoutedEventArgs e)
+    {
+        if (!TryBuy(50)) return;
+        _player.Strength++;
+        RefreshUI();
+        ShowStatus("Strength +1!");
+        await AnimateStatChange(StrValueTxt, StrBonusTxt, "+1");
+    }
 
-    private void BuyAgility_Click(object sender, RoutedEventArgs e)
-        => TryBuy(50, () => { _player.Agility++; Show("Agility +1!"); });
+    private async void BuyAgility_Click(object sender, RoutedEventArgs e)
+    {
+        if (!TryBuy(50)) return;
+        _player.Agility++;
+        RefreshUI();
+        ShowStatus("Agility +1!");
+        await AnimateStatChange(AgiValueTxt, AgiBonusTxt, "+1");
+    }
 
-    private void BuyIntelligence_Click(object sender, RoutedEventArgs e)
-        => TryBuy(50, () => { _player.Intelligence++; Show("Intelligence +1!"); });
+    private async void BuyIntelligence_Click(object sender, RoutedEventArgs e)
+    {
+        if (!TryBuy(50)) return;
+        _player.Intelligence++;
+        RefreshUI();
+        ShowStatus("Intelligence +1!");
+        await AnimateStatChange(IntValueTxt, IntBonusTxt, "+1");
+    }
 
-    private void BuyMaxHp_Click(object sender, RoutedEventArgs e)
-        => TryBuy(75, () => { _player.MaxHp += 10; _player.Heal(10); Show("Max HP +10!"); });
+    private async void BuyMaxHp_Click(object sender, RoutedEventArgs e)
+    {
+        if (!TryBuy(75)) return;
+        _player.MaxHp += 10;
+        _player.Heal(10);
+        RefreshUI();
+        ShowStatus("Max HP +10!");
+        await AnimateStatChange(HpValueTxt, HpBonusTxt, "+10");
+    }
 
-    private void BuyArmor_Click(object sender, RoutedEventArgs e)
-        => TryBuy(30, () => { _player.Armor += 5; Show("Armor +5!"); });
+    private async void BuyArmor_Click(object sender, RoutedEventArgs e)
+    {
+        if (!TryBuy(30)) return;
+        _player.Armor += 5;
+        RefreshUI();
+        ShowStatus("Armor +5!");
+        await AnimateStatChange(ArmorValueTxt, ArmorBonusTxt, "+5");
+    }
 
     private void BuyItem_Click(object sender, RoutedEventArgs e)
     {
         if (ShopList.SelectedItem is not Item item)
         {
-            Show("Select an item first.", error: true);
+            ShowStatus("Select an item first.", error: true);
             return;
         }
 
-        TryBuy(item.Price, () =>
+        if (!TryBuy(item.Price)) return;
+
+        if (item is Weapon w)
         {
-            if (item is Weapon w)
-            {
-                _player.EquippedWeapon = w;
-                Show($"Equipped {w.Name}!");
-            }
-            else
-            {
-                _player.Inventory.Add(item);
-                Show($"Bought {item.Name}!");
-            }
-        });
+            _player.EquippedWeapon = w;
+            ShowStatus($"Equipped {w.Name}!");
+        }
+        else
+        {
+            _player.Inventory.Add(item);
+            ShowStatus($"Bought {item.Name}!");
+        }
+        RefreshUI();
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();
 
-    private void Show(string msg, bool error = false)
+    private void ShowStatus(string msg, bool error = false)
     {
-        StatusTxt.Foreground = error
-            ? System.Windows.Media.Brushes.OrangeRed
-            : System.Windows.Media.Brushes.LightGreen;
+        StatusTxt.Foreground = error ? Brushes.OrangeRed : Brushes.LimeGreen;
         StatusTxt.Text = msg;
+    }
+
+    // ── Stat change animation ──
+    private async Task AnimateStatChange(TextBlock valueTxt, TextBlock bonusTxt, string bonus)
+    {
+        // Show bonus indicator with glow
+        bonusTxt.Text = bonus;
+        bonusTxt.Opacity = 1;
+
+        // Flash the value text gold and enlarge
+        var originalBrush = valueTxt.Foreground;
+        var originalSize = valueTxt.FontSize;
+        valueTxt.Foreground = new SolidColorBrush(Color.FromRgb(0xFF, 0xD7, 0x00));
+        valueTxt.FontSize = 22;
+
+        await Task.Delay(400);
+
+        valueTxt.FontSize = originalSize;
+        valueTxt.Foreground = originalBrush;
+
+        // Fade out bonus indicator
+        for (int i = 10; i >= 0; i--)
+        {
+            bonusTxt.Opacity = i * 0.1;
+            await Task.Delay(30);
+        }
     }
 }

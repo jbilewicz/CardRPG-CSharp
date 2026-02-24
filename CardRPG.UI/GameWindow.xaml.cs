@@ -11,13 +11,6 @@ public partial class GameWindow : Window
     private readonly User _currentUser;
     private Player _player;
 
-    private static readonly List<(string Name, int Hp, int Dmg, bool IsBoss)> Stages = new()
-    {
-        ("Green Slime",   30,  4, false),
-        ("Goblin Scout",  50,  8, false),
-        ("Orc Warlord",  120, 12, true),
-    };
-
     public GameWindow(User user)
     {
         InitializeComponent();
@@ -30,7 +23,7 @@ public partial class GameWindow : Window
     {
         if (!string.IsNullOrEmpty(_currentUser.SavedGameData))
         {
-            try   { _player = JsonSerializer.Deserialize<Player>(_currentUser.SavedGameData)!; }
+            try { _player = JsonSerializer.Deserialize<Player>(_currentUser.SavedGameData)!; }
             catch { _player = CreateNewPlayer(); }
         }
         else { _player = CreateNewPlayer(); }
@@ -41,10 +34,12 @@ public partial class GameWindow : Window
         var p = new Player(_currentUser.Username);
         p.MasterDeck = new List<Card>
         {
-            new Card("Strike", 1, CardType.Attack,  6),
-            new Card("Strike", 1, CardType.Attack,  6),
+            new Card("Strike", 1, CardType.Attack, 6),
+            new Card("Strike", 1, CardType.Attack, 6),
             new Card("Defend", 1, CardType.Defense, 5),
             new Card("Defend", 1, CardType.Defense, 5),
+            new Card("Quick Slash", 1, CardType.Attack, 4, "A swift blade strike."),
+            new Card("Heal", 1, CardType.Power, 12, "Restore 12 HP."),
         };
         return p;
     }
@@ -63,22 +58,36 @@ public partial class GameWindow : Window
     private void UpdateUI()
     {
         NameTxt.Text = _player.Name;
-        HpTxt.Text   = $"{_player.CurrentHp}/{_player.MaxHp}";
+        LevelTxt.Text = _player.Level.ToString();
+        HpTxt.Text = $"{_player.CurrentHp}/{_player.MaxHp}";
         ManaTxt.Text = $"{_player.CurrentMana}/{_player.MaxMana}";
         GoldTxt.Text = _player.Gold.ToString();
     }
 
     private void JourneyButton_Click(object sender, RoutedEventArgs e)
     {
-        int totalStages = Stages.Count;
+        var journeyWin = new JourneyWindow(_player) { Owner = this };
+        bool? picked = journeyWin.ShowDialog();
+
+        if (picked != true || journeyWin.SelectedRealmId == null)
+        {
+            UpdateUI();
+            return;
+        }
+
+        int realmId = journeyWin.SelectedRealmId.Value;
+        var realm = Realm.GetAllRealms().FirstOrDefault(r => r.Id == realmId);
+        if (realm == null) return;
+
+        int totalStages = realm.Stages.Count;
 
         for (int i = 0; i < totalStages; i++)
         {
-            var (name, hp, dmg, isBoss) = Stages[i];
+            var stage = realm.Stages[i];
             int stageNumber = i + 1;
 
-            var enemy = new Enemy(name, hp, dmg, isBoss);
-            var combat = new CombatWindow(_player, enemy, stageNumber, totalStages) { Owner = this };
+            var enemy = new Enemy(stage.EnemyName, stage.EnemyHp, stage.EnemyDmg, stage.IsBoss);
+            var combat = new CombatWindow(_player, enemy, stageNumber, totalStages, realm.Name) { Owner = this };
             bool? result = combat.ShowDialog();
 
             if (result != true)
@@ -88,32 +97,60 @@ public partial class GameWindow : Window
                 return;
             }
 
-            // Stage rewards
-            int heal = (int)(_player.MaxHp * 0.2);
+            int heal = (int)(_player.MaxHp * 0.25);
             _player.Heal(heal);
 
-            if (isBoss)
+            if (stage.IsBoss)
             {
-                _player.Gold += 100;
-                var reward = new Card("Execute", 2, CardType.Attack, 25);
-                _player.MasterDeck.Add(reward);
-                MessageBox.Show(
-                    $"⚔️ BOSS DEFEATED!\n+100 Gold\n+NEW CARD: Execute (25 DMG)\n+{heal} HP restored.",
-                    $"Stage {stageNumber}/{totalStages} Cleared!");
+                _player.Gold += realm.GoldReward;
+                bool leveledUp = _player.GainXp(realm.XpReward);
+
+                string msg = $"⚔️ {realm.Name} CONQUERED!\n\n" +
+                             $"+{realm.GoldReward} Gold\n" +
+                             $"+{realm.XpReward} XP\n" +
+                             $"+{heal} HP restored";
+
+                if (realm.CardReward != null)
+                {
+                    _player.MasterDeck.Add(new Card(
+                        realm.CardReward.Name,
+                        realm.CardReward.Cost,
+                        realm.CardReward.Type,
+                        realm.CardReward.Value,
+                        realm.CardReward.Description));
+                    msg += $"\n🎴 NEW CARD: {realm.CardReward.Name}!";
+                }
+
+                if (leveledUp)
+                    msg += $"\n\n⭐ LEVEL UP! You are now Level {_player.Level}!";
+
+                if (realm.Id >= _player.MaxRealmUnlocked && realm.Id < 10)
+                {
+                    _player.MaxRealmUnlocked = realm.Id + 1;
+                    var nextRealm = Realm.GetAllRealms().FirstOrDefault(r => r.Id == realm.Id + 1);
+                    if (nextRealm != null)
+                        msg += $"\n🔓 New realm unlocked: {nextRealm.Name}!";
+                }
+
+                MessageBox.Show(msg, $"Realm {realm.Id} Complete!");
             }
             else
             {
-                int gold = new Random().Next(10, 21);
+                int gold = new Random().Next(8, 18);
+                int xp = realm.XpReward / totalStages;
                 _player.Gold += gold;
-                MessageBox.Show(
-                    $"Stage {stageNumber}/{totalStages} cleared!\n+{gold} Gold\n+{heal} HP restored.",
-                    "Victory!");
+                bool leveledUp = _player.GainXp(xp);
+
+                string msg = $"Stage {stageNumber}/{totalStages} cleared!\n+{gold} Gold\n+{xp} XP\n+{heal} HP restored";
+                if (leveledUp)
+                    msg += $"\n\n⭐ LEVEL UP! You are now Level {_player.Level}!";
+
+                MessageBox.Show(msg, "Victory!");
             }
 
             UpdateUI();
         }
 
-        MessageBox.Show("JOURNEY COMPLETE! You return to the city as a hero. 🏆", "Journey Complete");
         SavePlayer();
         UpdateUI();
     }

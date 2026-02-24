@@ -6,14 +6,12 @@
         Background="Black">
 
     <Grid>
-        <!-- Background -->
-        <Image Source="Assets/bg_login.jpg" Stretch="Fill"
+        <Image Source="Assets/bg_login.png" Stretch="Fill"
                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
         <Rectangle Fill="#BB000000"/>
 
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 
-            <!-- Title with glow -->
             <TextBlock Text="⚔️ CardRPG ⚔️"
                        FontSize="48" FontWeight="Bold"
                        HorizontalAlignment="Center" Margin="0,0,0,8">
@@ -33,7 +31,6 @@
                        FontSize="13" Foreground="#8B8B7A"
                        HorizontalAlignment="Center" Margin="0,0,0,30"/>
 
-            <!-- Login panel with ornate border -->
             <Border Style="{StaticResource RpgPanel}" Width="340">
                 <StackPanel>
                     <TextBlock Text="Username" Foreground="#C0B090" FontSize="13" Margin="0,0,0,4"/>

@@ -5,7 +5,7 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using CardRPG.Core.Models;
-using CardRPG.Services;
+using CardRPG.Core.Services;
 
 namespace CardRPG.UI;
 
@@ -17,17 +17,19 @@ public partial class CombatWindow : Window
     private List<Card> _hand = new();
     private readonly int _stage;
     private readonly int _totalStages;
+    private readonly string _realmName;
+    private bool _turnInProgress = false;
 
-    public CombatWindow(Player player, Enemy enemy, int stage = 1, int totalStages = 3)
+    public CombatWindow(Player player, Enemy enemy, int stage = 1, int totalStages = 3, string realmName = "")
     {
         InitializeComponent();
         _player = player;
         _enemy = enemy;
         _stage = stage;
         _totalStages = totalStages;
+        _realmName = realmName;
         _engine = new CombatEngine(player, enemy);
 
-        // Setup RenderTransforms for shake animations
         EnemySprite.RenderTransform = new TranslateTransform();
         PlayerSprite.RenderTransform = new TranslateTransform();
 
@@ -39,10 +41,14 @@ public partial class CombatWindow : Window
     {
         string spritePath = _enemy.Name.ToLower() switch
         {
-            var n when n.Contains("slime")                                         => "Assets/slime.png",
-            var n when n.Contains("goblin")                                        => "Assets/goblin.png",
+            var n when n.Contains("slime") => "Assets/slime.png",
+            var n when n.Contains("goblin") => "Assets/goblin.png",
+            var n when n.Contains("wolf") || n.Contains("bear") => "Assets/slime.png",
+            var n when n.Contains("spider") || n.Contains("treant") => "Assets/goblin.png",
+            var n when n.Contains("dragon") || n.Contains("drake") || n.Contains("wyrm") => "Assets/arcwarlord.png",
+            var n when n.Contains("demon") || n.Contains("void") || n.Contains("abyss") => "Assets/arcwarlord.png",
             var n when n.Contains("orc") || n.Contains("warlord") || _enemy.IsBoss => "Assets/arcwarlord.png",
-            _                                                                       => "Assets/slime.png"
+            _ => "Assets/slime.png"
         };
 
         try { EnemySprite.Source = new BitmapImage(new Uri(spritePath, UriKind.Relative)); }
@@ -54,14 +60,14 @@ public partial class CombatWindow : Window
         _player.CurrentMana = _player.MaxMana;
         _player.Armor = 0;
         _hand = _engine.DrawHand();
+        _turnInProgress = false;
+        EndTurnBtn.IsEnabled = true;
         RefreshUI();
         RenderHand();
-        AddLog($"── New Turn | Enemy intent: {_enemy.CurrentIntent} ({_enemy.IntentValue}) ──", "#777777");
+        string realmLabel = string.IsNullOrEmpty(_realmName) ? "" : $" [{_realmName}]";
+        AddLog($"── Turn Start{realmLabel} | Enemy: {_enemy.CurrentIntent} ({_enemy.IntentValue}) ──", "#777777");
     }
 
-    // ═══════════════════════════════════════════
-    //  CARD RENDERING — Enhanced RPG-style cards
-    // ═══════════════════════════════════════════
     private void RenderHand()
     {
         HandPanel.Children.Clear();
@@ -69,24 +75,23 @@ public partial class CombatWindow : Window
         {
             bool canAfford = card.Cost <= _player.CurrentMana;
             bool isAttack = card.Type == CardType.Attack;
+            bool isPower = card.Type == CardType.Power;
 
-            // Card content layout
             var cardStack = new StackPanel
             {
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
 
-            // Type icon
+            string icon = isAttack ? "⚔️" : isPower ? "✨" : "🛡️";
             cardStack.Children.Add(new TextBlock
             {
-                Text = isAttack ? "⚔️" : "🛡️",
+                Text = icon,
                 FontSize = 28,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(0, 2, 0, 4)
             });
 
-            // Card name
             cardStack.Children.Add(new TextBlock
             {
                 Text = card.Name,
@@ -96,23 +101,36 @@ public partial class CombatWindow : Window
                 HorizontalAlignment = HorizontalAlignment.Center
             });
 
-            // Calculated value
-            int displayValue = isAttack
-                ? card.Value + _player.GetTotalDamage()
-                : card.Value + (_player.Agility / 2);
+            string valueLabel;
+            Color valueColor;
+            if (isAttack)
+            {
+                int displayValue = card.Value + _player.GetTotalDamage();
+                valueLabel = $"{displayValue} DMG";
+                valueColor = Color.FromRgb(0xFF, 0xAA, 0xAA);
+            }
+            else if (isPower)
+            {
+                valueLabel = $"{card.Value} HP";
+                valueColor = Color.FromRgb(0xAA, 0xFF, 0xAA);
+            }
+            else
+            {
+                int displayValue = card.Value + (_player.Agility / 2);
+                valueLabel = $"{displayValue} ARM";
+                valueColor = Color.FromRgb(0xAA, 0xCC, 0xFF);
+            }
+
             cardStack.Children.Add(new TextBlock
             {
-                Text = isAttack ? $"{displayValue} DMG" : $"{displayValue} ARM",
+                Text = valueLabel,
                 FontSize = 13,
                 FontWeight = FontWeights.Bold,
-                Foreground = new SolidColorBrush(isAttack
-                    ? Color.FromRgb(0xFF, 0xAA, 0xAA)
-                    : Color.FromRgb(0xAA, 0xCC, 0xFF)),
+                Foreground = new SolidColorBrush(valueColor),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(0, 2, 0, 0)
             });
 
-            // Separator line
             cardStack.Children.Add(new Border
             {
                 Height = 1,
@@ -120,7 +138,6 @@ public partial class CombatWindow : Window
                 Margin = new Thickness(6, 8, 6, 6)
             });
 
-            // Mana cost
             var costPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
@@ -136,7 +153,16 @@ public partial class CombatWindow : Window
             });
             cardStack.Children.Add(costPanel);
 
-            // The card button
+            Color bgStart = isAttack ? Color.FromRgb(0x50, 0x14, 0x14)
+                          : isPower ? Color.FromRgb(0x14, 0x50, 0x14)
+                          : Color.FromRgb(0x14, 0x20, 0x50);
+            Color bgEnd = isAttack ? Color.FromRgb(0x28, 0x08, 0x08)
+                        : isPower ? Color.FromRgb(0x08, 0x28, 0x08)
+                        : Color.FromRgb(0x08, 0x10, 0x28);
+            Color borderColor = isAttack ? Color.FromRgb(0xFF, 0x44, 0x44)
+                              : isPower ? Color.FromRgb(0x44, 0xFF, 0x44)
+                              : Color.FromRgb(0x44, 0x88, 0xFF);
+
             var btn = new Button
             {
                 Content = cardStack,
@@ -144,18 +170,12 @@ public partial class CombatWindow : Window
                 Width = 130,
                 Height = 170,
                 Margin = new Thickness(6),
-                IsEnabled = canAfford,
+                IsEnabled = canAfford && !_turnInProgress,
                 Foreground = Brushes.White,
-                Background = new LinearGradientBrush(
-                    isAttack ? Color.FromRgb(0x50, 0x14, 0x14) : Color.FromRgb(0x14, 0x20, 0x50),
-                    isAttack ? Color.FromRgb(0x28, 0x08, 0x08) : Color.FromRgb(0x08, 0x10, 0x28),
-                    90),
-                BorderBrush = new SolidColorBrush(isAttack
-                    ? Color.FromRgb(0xFF, 0x44, 0x44)
-                    : Color.FromRgb(0x44, 0x88, 0xFF)),
+                Background = new LinearGradientBrush(bgStart, bgEnd, 90),
+                BorderBrush = new SolidColorBrush(borderColor),
             };
 
-            // Apply CardButton style for hover/press effects
             if (TryFindResource("CardButton") is Style cardStyle)
                 btn.Style = cardStyle;
 
@@ -164,9 +184,6 @@ public partial class CombatWindow : Window
         }
     }
 
-    // ═══════════════════════════════════════════
-    //  CARD PLAY — with animations
-    // ═══════════════════════════════════════════
     private async void CardButton_Click(object sender, RoutedEventArgs e)
     {
         var btn = (Button)sender;
@@ -174,29 +191,27 @@ public partial class CombatWindow : Window
 
         if (card.Cost > _player.CurrentMana)
         {
-            AddLog("❌ Not enough Mana!", "#FF4444");
+            AddLog("Not enough Mana!", "#FF4444");
             return;
         }
 
-        _player.CurrentMana -= card.Cost;
-
-        int enemyHpBefore = _enemy.CurrentHp;
-        int playerArmorBefore = _player.Armor;
-
-        _engine.PlayCard(card);
+        var result = _engine.PlayCard(card);
+        _hand.Remove(card);
 
         if (card.Type == CardType.Attack)
         {
-            int dmgDealt = enemyHpBefore - _enemy.CurrentHp;
-            AddLog($"⚔️ {card.Name} → {dmgDealt} damage to {_enemy.Name}!", "#FF8888");
-            // Shake enemy + floating damage
+            string color = result.IsCrit ? "#FFD700" : "#FF8888";
+            AddLog($"⚔️ {result.Message}", color);
             _ = ShakeElement(EnemySprite);
-            _ = ShowFloatingDamage(EnemyDmgPopup, dmgDealt);
+            _ = ShowFloatingDamage(EnemyDmgPopup, result.DamageDealt);
+        }
+        else if (card.Type == CardType.Power)
+        {
+            AddLog($"✨ {result.Message}", "#88FF88");
         }
         else
         {
-            int armorGained = _player.Armor - playerArmorBefore;
-            AddLog($"🛡️ {card.Name} → +{armorGained} armor.", "#8888FF");
+            AddLog($"🛡️ {result.Message}", "#8888FF");
         }
 
         RefreshUI();
@@ -205,34 +220,49 @@ public partial class CombatWindow : Window
         if (_enemy.IsDead)
         {
             AddLog($"💀 {_enemy.Name} defeated!", "#FFD700");
+            EndTurnBtn.IsEnabled = false;
             await Task.Delay(800);
             HandleVictory();
             return;
         }
 
-        // ── Enemy turn ──
-        SetHandEnabled(false);
-        AddLog("...", "#555555");
-        await Task.Delay(1000);
-
-        int playerHpBefore = _player.CurrentHp;
-        _engine.EnemyTurn();
-        int damageTaken = playerHpBefore - _player.CurrentHp;
-
-        if (damageTaken > 0)
+        if (_player.CurrentMana <= 0 || _hand.Count == 0)
         {
-            AddLog($"💢 {_enemy.Name} hit you for {damageTaken} damage!", "#FF4444");
-            _ = FlashHitOverlay();
-            _ = ShakeElement(PlayerSprite);
-            _ = ShowFloatingDamage(PlayerDmgPopup, damageTaken);
+            await ExecuteEnemyTurn();
         }
-        else if (_enemy.CurrentIntent == EnemyIntent.Defend)
+    }
+
+    private async void EndTurnButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_turnInProgress) return;
+        await ExecuteEnemyTurn();
+    }
+
+    private async Task ExecuteEnemyTurn()
+    {
+        _turnInProgress = true;
+        EndTurnBtn.IsEnabled = false;
+        SetHandEnabled(false);
+
+        AddLog("...", "#555555");
+        await Task.Delay(800);
+
+        var result = _engine.EnemyTurn();
+
+        if (result.IsDodge)
         {
-            AddLog($"⚕️ {_enemy.Name} healed itself.", "#88FF88");
+            AddLog($"💨 {result.Message}", "#88FF88");
+        }
+        else if (_enemy.CurrentIntent == EnemyIntent.Defend || result.DamageDealt > 0 && result.Message.Contains("heal"))
+        {
+            AddLog($"⚕️ {result.Message}", "#88FF88");
         }
         else
         {
-            AddLog("💨 You dodged the attack!", "#88FF88");
+            AddLog($"💢 {result.Message}", "#FF4444");
+            _ = FlashHitOverlay();
+            _ = ShakeElement(PlayerSprite);
+            _ = ShowFloatingDamage(PlayerDmgPopup, result.DamageDealt);
         }
 
         RefreshUI();
@@ -243,7 +273,7 @@ public partial class CombatWindow : Window
             return;
         }
 
-        SetHandEnabled(true);
+        await Task.Delay(400);
         StartTurn();
     }
 
@@ -266,7 +296,8 @@ public partial class CombatWindow : Window
 
     private void RefreshUI()
     {
-        StageTxt.Text = $"Stage {_stage} / {_totalStages}";
+        string realmLabel = string.IsNullOrEmpty(_realmName) ? "" : $" — {_realmName}";
+        StageTxt.Text = $"Stage {_stage} / {_totalStages}{realmLabel}";
 
         EnemyNameTxt.Text = _enemy.Name;
         EnemyNameSmallTxt.Text = _enemy.Name;
@@ -288,9 +319,6 @@ public partial class CombatWindow : Window
             child.IsEnabled = enabled;
     }
 
-    // ═══════════════════════════════════════════
-    //  COLORED COMBAT LOG
-    // ═══════════════════════════════════════════
     private void AddLog(string message, string color = "#AAAAAA")
     {
         var tb = new TextBlock
@@ -305,11 +333,6 @@ public partial class CombatWindow : Window
             CombatLog.Items.RemoveAt(50);
     }
 
-    // ═══════════════════════════════════════════
-    //  COMBAT ANIMATIONS
-    // ═══════════════════════════════════════════
-
-    /// <summary>Shake an element left-right rapidly.</summary>
     private async Task ShakeElement(FrameworkElement element)
     {
         if (element.RenderTransform is not TranslateTransform transform)
@@ -326,7 +349,6 @@ public partial class CombatWindow : Window
         }
     }
 
-    /// <summary>Flash the screen red when the player takes a hit.</summary>
     private async Task FlashHitOverlay()
     {
         HitFlash.Opacity = 0.4;
@@ -338,7 +360,6 @@ public partial class CombatWindow : Window
         HitFlash.Opacity = 0;
     }
 
-    /// <summary>Show a floating damage number that rises and fades away.</summary>
     private async Task ShowFloatingDamage(TextBlock popup, int damage)
     {
         popup.Text = $"-{damage}";

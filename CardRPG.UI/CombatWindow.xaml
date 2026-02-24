@@ -1,18 +1,15 @@
-<Window x:Class="CardRPG.UI.CombatWindow"
+﻿<Window x:Class="CardRPG.UI.CombatWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="⚔️ Battle!" Height="720" Width="1020"
+        Title="âš”ď¸Ź Battle!" Height="720" Width="1020"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="Black">
 
     <Grid>
-        <!-- Background image -->
         <Image Source="Assets/bg_combat.png" Stretch="Fill"
                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-        <!-- Dark overlay -->
         <Rectangle Fill="#BB0A0A15"/>
-        <!-- RED HIT FLASH (initially hidden) -->
         <Rectangle x:Name="HitFlash" Fill="#FFFF0000" Opacity="0" IsHitTestVisible="False"
                    Panel.ZIndex="50"/>
 
@@ -25,7 +22,6 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- ═══ Row 0: Top bar ═══ -->
             <Border Grid.Row="0" Style="{StaticResource RpgPanel}" Padding="12,8"
                     Margin="0,0,0,8">
                 <Grid>
@@ -60,7 +56,6 @@
                 </Grid>
             </Border>
 
-            <!-- ═══ Row 1: Battle arena ═══ -->
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -68,14 +63,12 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Player side -->
                 <StackPanel Grid.Column="0" VerticalAlignment="Bottom"
                             HorizontalAlignment="Center" Margin="0,0,0,8">
                     <Grid>
                         <Image x:Name="PlayerSprite" Source="Assets/Player.png"
                                Height="190" HorizontalAlignment="Center"
                                RenderOptions.BitmapScalingMode="HighQuality"/>
-                        <!-- Player damage popup -->
                         <TextBlock x:Name="PlayerDmgPopup" Text="" FontSize="30"
                                    FontWeight="Bold" Foreground="#FF4444" Opacity="0"
                                    IsHitTestVisible="False"
@@ -101,8 +94,7 @@
                                HorizontalAlignment="Center" Margin="0,3,0,0"/>
                 </StackPanel>
 
-                <!-- VS label -->
-                <TextBlock Grid.Column="1" Text="⚔️"
+                <TextBlock Grid.Column="1" Text="âš”ď¸Ź"
                            FontSize="28" FontWeight="Bold"
                            VerticalAlignment="Center" HorizontalAlignment="Center">
                     <TextBlock.Effect>
@@ -110,14 +102,12 @@
                     </TextBlock.Effect>
                 </TextBlock>
 
-                <!-- Enemy side -->
                 <StackPanel Grid.Column="2" VerticalAlignment="Bottom"
                             HorizontalAlignment="Center" Margin="0,0,0,8">
                     <Grid>
                         <Image x:Name="EnemySprite" Height="190"
                                HorizontalAlignment="Center"
                                RenderOptions.BitmapScalingMode="HighQuality"/>
-                        <!-- Enemy damage popup -->
                         <TextBlock x:Name="EnemyDmgPopup" Text="" FontSize="30"
                                    FontWeight="Bold" Foreground="OrangeRed" Opacity="0"
                                    IsHitTestVisible="False"
@@ -140,18 +130,17 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ═══ Row 2: Stats bar ═══ -->
             <Border Grid.Row="2" Style="{StaticResource RpgPanel}"
                     Padding="14,6" Margin="0,0,0,6">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Text="💜 " FontSize="15"/>
+                    <TextBlock Text="đź’ś " FontSize="15"/>
                     <TextBlock x:Name="PlayerManaTxt" Foreground="MediumPurple"
                                FontSize="15" FontWeight="Bold" Margin="0,0,30,0">
                         <TextBlock.Effect>
                             <DropShadowEffect Color="MediumPurple" BlurRadius="6" ShadowDepth="0" Opacity="0.3"/>
                         </TextBlock.Effect>
                     </TextBlock>
-                    <TextBlock Text="🛡️ " FontSize="15"/>
+                    <TextBlock Text="đź›ˇď¸Ź " FontSize="15"/>
                     <TextBlock x:Name="PlayerArmorTxt" Foreground="CornflowerBlue"
                                FontSize="15" FontWeight="Bold">
                         <TextBlock.Effect>
@@ -161,7 +150,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- ═══ Row 3: Combat log ═══ -->
             <Border Grid.Row="3" Style="{StaticResource RpgPanel}"
                     Padding="6" Margin="0,0,0,8">
                 <ListBox x:Name="CombatLog"
@@ -170,18 +158,28 @@
                          ScrollViewer.VerticalScrollBarVisibility="Auto"/>
             </Border>
 
-            <!-- ═══ Row 4: Hand cards ═══ -->
             <StackPanel Grid.Row="4">
-                <TextBlock Text="✋ Your Hand" FontSize="14" FontWeight="Bold"
-                           Margin="0,0,0,6">
-                    <TextBlock.Foreground>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                            <GradientStop Color="#FFD700" Offset="0"/>
-                            <GradientStop Color="#FFA500" Offset="1"/>
-                        </LinearGradientBrush>
-                    </TextBlock.Foreground>
-                </TextBlock>
-                <WrapPanel x:Name="HandPanel" HorizontalAlignment="Center"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="âś‹ Your Hand" FontSize="14" FontWeight="Bold"
+                               VerticalAlignment="Center" Margin="0,0,0,0">
+                        <TextBlock.Foreground>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#FFD700" Offset="0"/>
+                                <GradientStop Color="#FFA500" Offset="1"/>
+                            </LinearGradientBrush>
+                        </TextBlock.Foreground>
+                    </TextBlock>
+                    <Button x:Name="EndTurnBtn" Grid.Column="1" Content="âŹ­ď¸Ź  END TURN"
+                            Width="160" Height="42"
+                            Style="{StaticResource RpgRedButton}"
+                            FontSize="14"
+                            Click="EndTurnButton_Click"/>
+                </Grid>
+                <WrapPanel x:Name="HandPanel" HorizontalAlignment="Center" Margin="0,6,0,0"/>
             </StackPanel>
         </Grid>
     </Grid>

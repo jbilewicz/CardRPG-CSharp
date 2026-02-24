@@ -1,13 +1,10 @@
-<Application x:Class="CardRPG.UI.App"
+﻿<Application x:Class="CardRPG.UI.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:CardRPG.UI"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
 
-        <!-- ════════════════════════════════════════════════════════
-             FANTASY RPG BUTTON — Gold / Brown (default)
-             ════════════════════════════════════════════════════════ -->
         <Style x:Key="RpgButton" TargetType="Button">
             <Setter Property="Foreground" Value="#F0E6D0"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -70,7 +67,6 @@
             </Setter>
         </Style>
 
-        <!-- ════════════ RED BUTTON (Combat / Danger) ════════════ -->
         <Style x:Key="RpgRedButton" TargetType="Button">
             <Setter Property="Foreground" Value="#FFD0D0"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -133,7 +129,6 @@
             </Setter>
         </Style>
 
-        <!-- ════════════ GREEN BUTTON (Confirm / Heal) ════════════ -->
         <Style x:Key="RpgGreenButton" TargetType="Button">
             <Setter Property="Foreground" Value="#D0FFD0"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -196,7 +191,6 @@
             </Setter>
         </Style>
 
-        <!-- ════════════ TEAL BUTTON (Inventory / Info) ════════════ -->
         <Style x:Key="RpgTealButton" TargetType="Button">
             <Setter Property="Foreground" Value="#D0FFFF"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -259,7 +253,6 @@
             </Setter>
         </Style>
 
-        <!-- ════════════ SUBTLE BUTTON (Close / Cancel) ════════════ -->
         <Style x:Key="RpgSubtleButton" TargetType="Button">
             <Setter Property="Foreground" Value="#999"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -290,7 +283,6 @@
             </Setter>
         </Style>
 
-        <!-- ════════════ CARD BUTTON (Hover scale + glow) ════════════ -->
         <Style x:Key="CardButton" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
@@ -338,7 +330,6 @@
             </Setter>
         </Style>
 
-        <!-- ════════════ HP BAR (Green gradient + glow) ════════════ -->
         <Style x:Key="HpBarStyle" TargetType="ProgressBar">
             <Setter Property="Height" Value="22"/>
             <Setter Property="Template">
@@ -366,7 +357,6 @@
             </Setter>
         </Style>
 
-        <!-- ════════════ ENEMY HP BAR (Red/Orange) ════════════ -->
         <Style x:Key="EnemyHpBarStyle" TargetType="ProgressBar">
             <Setter Property="Height" Value="22"/>
             <Setter Property="Template">
@@ -394,7 +384,6 @@
             </Setter>
         </Style>
 
-        <!-- ════════════ RPG PANEL (Ornate border) ════════════ -->
         <Style x:Key="RpgPanel" TargetType="Border">
             <Setter Property="CornerRadius" Value="6"/>
             <Setter Property="Padding" Value="14"/>

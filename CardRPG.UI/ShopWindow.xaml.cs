@@ -127,14 +127,11 @@ public partial class ShopWindow : Window
         StatusTxt.Text = msg;
     }
 
-    // ── Stat change animation ──
     private async Task AnimateStatChange(TextBlock valueTxt, TextBlock bonusTxt, string bonus)
     {
-        // Show bonus indicator with glow
         bonusTxt.Text = bonus;
         bonusTxt.Opacity = 1;
 
-        // Flash the value text gold and enlarge
         var originalBrush = valueTxt.Foreground;
         var originalSize = valueTxt.FontSize;
         valueTxt.Foreground = new SolidColorBrush(Color.FromRgb(0xFF, 0xD7, 0x00));
@@ -145,7 +142,6 @@ public partial class ShopWindow : Window
         valueTxt.FontSize = originalSize;
         valueTxt.Foreground = originalBrush;
 
-        // Fade out bonus indicator
         for (int i = 10; i >= 0; i--)
         {
             bonusTxt.Opacity = i * 0.1;

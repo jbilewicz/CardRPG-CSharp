@@ -1,7 +1,7 @@
-<Window x:Class="CardRPG.UI.InventoryWindow"
+﻿<Window x:Class="CardRPG.UI.InventoryWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="🎒 Inventory" Height="540" Width="700"
+        Title="đźŽ’ Inventory" Height="540" Width="700"
         Background="#0D0D14"
         WindowStartupLocation="CenterOwner">
 
@@ -13,7 +13,6 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Title -->
         <TextBlock Grid.Row="0" FontSize="26" FontWeight="Bold" Margin="0,0,0,12">
             <TextBlock.Foreground>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -24,26 +23,24 @@
             <TextBlock.Effect>
                 <DropShadowEffect Color="#44CCFF" BlurRadius="12" ShadowDepth="0" Opacity="0.3"/>
             </TextBlock.Effect>
-            🎒 INVENTORY
+            đźŽ’ INVENTORY
         </TextBlock>
 
-        <!-- Equipment info -->
         <Border Grid.Row="1" Style="{StaticResource RpgPanel}" Padding="12,8" Margin="0,0,0,10">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="⚔️ Equipped Weapon: " Foreground="#8B8B7A" FontSize="14"/>
+                <TextBlock Text="âš”ď¸Ź Equipped Weapon: " Foreground="#8B8B7A" FontSize="14"/>
                 <TextBlock x:Name="WeaponTxt" Text="None" Foreground="LightBlue"
                            FontSize="14" FontWeight="Bold">
                     <TextBlock.Effect>
                         <DropShadowEffect Color="LightBlue" BlurRadius="6" ShadowDepth="0" Opacity="0.3"/>
                     </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Text="        ❤️ HP: " Foreground="#8B8B7A" FontSize="14"/>
+                <TextBlock Text="        âť¤ď¸Ź HP: " Foreground="#8B8B7A" FontSize="14"/>
                 <TextBlock x:Name="HpTxt" Text="" Foreground="LightGreen"
                            FontSize="14" FontWeight="Bold"/>
             </StackPanel>
         </Border>
 
-        <!-- Items list -->
         <Border Grid.Row="2" Style="{StaticResource RpgPanel}" Padding="4">
             <ListView x:Name="InvList"
                       Background="Transparent" Foreground="White"
@@ -61,7 +58,6 @@
             </ListView>
         </Border>
 
-        <!-- Bottom bar -->
         <Border Grid.Row="3" Style="{StaticResource RpgPanel}"
                 Padding="10,6" Margin="0,10,0,0">
             <DockPanel>

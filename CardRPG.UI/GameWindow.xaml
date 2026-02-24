@@ -1,4 +1,4 @@
-<Window x:Class="CardRPG.UI.GameWindow"
+﻿<Window x:Class="CardRPG.UI.GameWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="CardRPG - City Hub" Height="650" Width="950"
@@ -12,12 +12,10 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Background -->
         <Image Source="Assets/bg_city.avif" Stretch="Fill" Grid.RowSpan="3"
                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
         <Rectangle Fill="#66000000" Grid.RowSpan="3"/>
 
-        <!-- ═══ TOP BAR — Player Stats ═══ -->
         <Border Grid.Row="0" Style="{StaticResource RpgPanel}" Margin="10,8,10,0"
                 Padding="16,10">
             <Grid>
@@ -27,9 +25,8 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Player name -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="👤 " FontSize="18"/>
+                    <TextBlock Text="đź‘¤ " FontSize="18"/>
                     <TextBlock x:Name="NameTxt" Text="Hero" FontSize="20" FontWeight="Bold">
                         <TextBlock.Foreground>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -40,23 +37,26 @@
                     </TextBlock>
                 </StackPanel>
 
-                <!-- Center stats -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal"
                             HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="❤️" FontSize="16" Margin="0,0,4,0"/>
+                    <TextBlock Text="â­" FontSize="16" Margin="0,0,4,0"/>
+                    <TextBlock Text="Lv." Foreground="#B8860B" FontSize="15" FontWeight="Bold"/>
+                    <TextBlock x:Name="LevelTxt" Text="1" Foreground="#FFD700" FontSize="15"
+                               FontWeight="Bold" Margin="0,0,16,0"/>
+
+                    <TextBlock Text="âť¤ď¸Ź" FontSize="16" Margin="0,0,4,0"/>
                     <TextBlock Text="HP:" Foreground="#FF6666" FontSize="15" FontWeight="Bold"/>
                     <TextBlock x:Name="HpTxt" Text="100/100" Foreground="White" FontSize="15"
-                               Margin="4,0,24,0"/>
+                               Margin="4,0,16,0"/>
 
-                    <TextBlock Text="💧" FontSize="16" Margin="0,0,4,0"/>
+                    <TextBlock Text="đź’§" FontSize="16" Margin="0,0,4,0"/>
                     <TextBlock Text="Mana:" Foreground="#6699FF" FontSize="15" FontWeight="Bold"/>
                     <TextBlock x:Name="ManaTxt" Text="3/3" Foreground="White" FontSize="15"
                                Margin="4,0,0,0"/>
                 </StackPanel>
 
-                <!-- Gold -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="💰" FontSize="16" Margin="0,0,4,0"/>
+                    <TextBlock Text="đź’°" FontSize="16" Margin="0,0,4,0"/>
                     <TextBlock x:Name="GoldTxt" Text="0" FontSize="17" FontWeight="Bold">
                         <TextBlock.Foreground>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -71,9 +71,8 @@
             </Grid>
         </Border>
 
-        <!-- ═══ CENTER — City Title ═══ -->
         <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="🏰" FontSize="60" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+            <TextBlock Text="đźŹ°" FontSize="60" HorizontalAlignment="Center" Margin="0,0,0,6"/>
             <TextBlock Text="CITY HUB" FontSize="42" FontWeight="Bold"
                        HorizontalAlignment="Center">
                 <TextBlock.Foreground>
@@ -92,27 +91,26 @@
                        HorizontalAlignment="Center" Margin="0,6,0,0"/>
         </StackPanel>
 
-        <!-- ═══ BOTTOM — Navigation Buttons ═══ -->
         <Border Grid.Row="2" Style="{StaticResource RpgPanel}" Margin="10,0,10,10"
                 Padding="10,8">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 
-                <Button Content="⚔️  JOURNEY" Width="170" Height="56" Margin="8"
+                <Button Content="âš”ď¸Ź  JOURNEY" Width="170" Height="56" Margin="8"
                         Style="{StaticResource RpgRedButton}"
                         FontSize="16"
                         Click="JourneyButton_Click"/>
 
-                <Button Content="🛒  SHOP" Width="170" Height="56" Margin="8"
+                <Button Content="đź›’  SHOP" Width="170" Height="56" Margin="8"
                         Style="{StaticResource RpgButton}"
                         FontSize="16"
                         Click="ShopButton_Click"/>
 
-                <Button Content="🍺  TAVERN" Width="170" Height="56" Margin="8"
+                <Button Content="đźŤş  TAVERN" Width="170" Height="56" Margin="8"
                         Style="{StaticResource RpgButton}"
                         FontSize="16"
                         Click="TavernButton_Click"/>
 
-                <Button Content="🎒  INVENTORY" Width="170" Height="56" Margin="8"
+                <Button Content="đźŽ’  INVENTORY" Width="170" Height="56" Margin="8"
                         Style="{StaticResource RpgTealButton}"
                         FontSize="16"
                         Click="InventoryButton_Click"/>

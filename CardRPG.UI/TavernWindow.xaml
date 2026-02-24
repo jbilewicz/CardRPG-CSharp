@@ -1,7 +1,7 @@
-<Window x:Class="CardRPG.UI.TavernWindow"
+﻿<Window x:Class="CardRPG.UI.TavernWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="🍺 Tavern" Height="480" Width="720"
+        Title="đźŤş Tavern" Height="480" Width="720"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="Black">
@@ -19,8 +19,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Title -->
-            <TextBlock Grid.Row="0" Text="🍺 THE RUSTY FLAGON"
+            <TextBlock Grid.Row="0" Text="đźŤş THE RUSTY FLAGON"
                        FontSize="30" FontWeight="Bold"
                        HorizontalAlignment="Center" Margin="0,0,0,4">
                 <TextBlock.Foreground>
@@ -38,14 +37,12 @@
                        FontSize="13" Foreground="#BBAA88"
                        HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
-            <!-- Center content -->
             <Border Grid.Row="2" Style="{StaticResource RpgPanel}"
                     VerticalAlignment="Center" HorizontalAlignment="Center"
                     Padding="30,20" MinWidth="360">
                 <StackPanel HorizontalAlignment="Center">
-                    <!-- HP Display -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,4">
-                        <TextBlock Text="❤️ " FontSize="18"/>
+                        <TextBlock Text="âť¤ď¸Ź " FontSize="18"/>
                         <TextBlock x:Name="HpTxt" Text="HP: 100/100"
                                    Foreground="LightGreen" FontSize="18" FontWeight="Bold">
                             <TextBlock.Effect>
@@ -54,9 +51,8 @@
                         </TextBlock>
                     </StackPanel>
 
-                    <!-- Gold Display -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,28">
-                        <TextBlock Text="💰 " FontSize="18"/>
+                        <TextBlock Text="đź’° " FontSize="18"/>
                         <TextBlock x:Name="GoldTxt" Text="Gold: 0"
                                    FontSize="18" FontWeight="Bold">
                             <TextBlock.Foreground>
@@ -68,14 +64,13 @@
                         </TextBlock>
                     </StackPanel>
 
-                    <!-- Actions -->
-                    <Button Content="🍖  Meal — Heal 30 HP  (10g)"
+                    <Button Content="đźŤ–  Meal â€” Heal 30 HP  (10g)"
                             Width="280" Height="50" Margin="0,0,0,12"
                             Style="{StaticResource RpgButton}"
                             FontSize="14"
                             Click="MealButton_Click"/>
 
-                    <Button Content="🛏️  Full Rest — Heal fully  (30g)"
+                    <Button Content="đź›Źď¸Ź  Full Rest â€” Heal fully  (30g)"
                             Width="280" Height="50" Margin="0,0,0,0"
                             Style="{StaticResource RpgGreenButton}"
                             FontSize="14"
@@ -83,7 +78,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- Bottom bar -->
             <Border Grid.Row="3" Style="{StaticResource RpgPanel}"
                     Padding="10,6" Margin="0,16,0,0">
                 <DockPanel>

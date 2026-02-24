@@ -1,7 +1,7 @@
-<Window x:Class="CardRPG.UI.ShopWindow"
+﻿<Window x:Class="CardRPG.UI.ShopWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="🛒 Shop" Height="640" Width="880"
+        Title="đź›’ Shop" Height="640" Width="880"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="Black">
@@ -23,7 +23,6 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ═══ HEADER ═══ -->
             <Border Grid.Row="0" Grid.ColumnSpan="3" Style="{StaticResource RpgPanel}"
                     Padding="16,10" Margin="0,0,0,12">
                 <DockPanel>
@@ -34,12 +33,12 @@
                                 <GradientStop Color="#FFA500" Offset="1"/>
                             </LinearGradientBrush>
                         </TextBlock.Foreground>
-                        🛒 GENERAL STORE
+                        đź›’ GENERAL STORE
                     </TextBlock>
                     <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right"
                                 VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="💰 " FontSize="18"/>
+                            <TextBlock Text="đź’° " FontSize="18"/>
                             <TextBlock x:Name="GoldTxt" Text="0" FontSize="20" FontWeight="Bold">
                                 <TextBlock.Foreground>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -55,17 +54,15 @@
                 </DockPanel>
             </Border>
 
-            <!-- ═══ LEFT: Stat Upgrades with visible values ═══ -->
             <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource RpgPanel}">
                 <StackPanel>
-                    <TextBlock Text="⚡ STAT UPGRADES" FontSize="16" FontWeight="Bold"
+                    <TextBlock Text="âšˇ STAT UPGRADES" FontSize="16" FontWeight="Bold"
                                Foreground="Gold" Margin="0,0,0,14">
                         <TextBlock.Effect>
                             <DropShadowEffect Color="#FFD700" BlurRadius="10" ShadowDepth="0" Opacity="0.3"/>
                         </TextBlock.Effect>
                     </TextBlock>
 
-                    <!-- Stats Grid -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="110"/>
@@ -81,8 +78,7 @@
                             <RowDefinition Height="50"/>
                         </Grid.RowDefinitions>
 
-                        <!-- ── STRENGTH ── -->
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="💪 STR"
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="đź’Ş STR"
                                    Foreground="#E8C080" FontSize="15" FontWeight="Bold"
                                    VerticalAlignment="Center"/>
                         <Border Grid.Row="0" Grid.Column="1" Background="#33FFD700"
@@ -100,13 +96,12 @@
                                 <DropShadowEffect Color="LimeGreen" BlurRadius="8" ShadowDepth="0" Opacity="0.6"/>
                             </TextBlock.Effect>
                         </TextBlock>
-                        <Button Grid.Row="0" Grid.Column="3" Content="50 💰"
+                        <Button Grid.Row="0" Grid.Column="3" Content="50 đź’°"
                                 Style="{StaticResource RpgButton}" Height="34"
                                 Margin="6,4" Padding="8,4" FontSize="12"
                                 Click="BuyStrength_Click"/>
 
-                        <!-- ── AGILITY ── -->
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="🦵 AGI"
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="đź¦µ AGI"
                                    Foreground="#80E880" FontSize="15" FontWeight="Bold"
                                    VerticalAlignment="Center"/>
                         <Border Grid.Row="1" Grid.Column="1" Background="#3344FF44"
@@ -124,13 +119,12 @@
                                 <DropShadowEffect Color="LimeGreen" BlurRadius="8" ShadowDepth="0" Opacity="0.6"/>
                             </TextBlock.Effect>
                         </TextBlock>
-                        <Button Grid.Row="1" Grid.Column="3" Content="50 💰"
+                        <Button Grid.Row="1" Grid.Column="3" Content="50 đź’°"
                                 Style="{StaticResource RpgButton}" Height="34"
                                 Margin="6,4" Padding="8,4" FontSize="12"
                                 Click="BuyAgility_Click"/>
 
-                        <!-- ── INTELLIGENCE ── -->
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="🧠 INT"
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="đź§  INT"
                                    Foreground="#8080E8" FontSize="15" FontWeight="Bold"
                                    VerticalAlignment="Center"/>
                         <Border Grid.Row="2" Grid.Column="1" Background="#334444FF"
@@ -148,13 +142,12 @@
                                 <DropShadowEffect Color="LimeGreen" BlurRadius="8" ShadowDepth="0" Opacity="0.6"/>
                             </TextBlock.Effect>
                         </TextBlock>
-                        <Button Grid.Row="2" Grid.Column="3" Content="50 💰"
+                        <Button Grid.Row="2" Grid.Column="3" Content="50 đź’°"
                                 Style="{StaticResource RpgButton}" Height="34"
                                 Margin="6,4" Padding="8,4" FontSize="12"
                                 Click="BuyIntelligence_Click"/>
 
-                        <!-- ── MAX HP ── -->
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="❤️ Max HP"
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="âť¤ď¸Ź Max HP"
                                    Foreground="#E86060" FontSize="15" FontWeight="Bold"
                                    VerticalAlignment="Center"/>
                         <Border Grid.Row="3" Grid.Column="1" Background="#33FF4444"
@@ -172,13 +165,12 @@
                                 <DropShadowEffect Color="LimeGreen" BlurRadius="8" ShadowDepth="0" Opacity="0.6"/>
                             </TextBlock.Effect>
                         </TextBlock>
-                        <Button Grid.Row="3" Grid.Column="3" Content="75 💰"
+                        <Button Grid.Row="3" Grid.Column="3" Content="75 đź’°"
                                 Style="{StaticResource RpgButton}" Height="34"
                                 Margin="6,4" Padding="8,4" FontSize="12"
                                 Click="BuyMaxHp_Click"/>
 
-                        <!-- ── ARMOR ── -->
-                        <TextBlock Grid.Row="4" Grid.Column="0" Text="🛡️ Armor"
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="đź›ˇď¸Ź Armor"
                                    Foreground="#80C0C0" FontSize="15" FontWeight="Bold"
                                    VerticalAlignment="Center"/>
                         <Border Grid.Row="4" Grid.Column="1" Background="#3344AACC"
@@ -196,7 +188,7 @@
                                 <DropShadowEffect Color="LimeGreen" BlurRadius="8" ShadowDepth="0" Opacity="0.6"/>
                             </TextBlock.Effect>
                         </TextBlock>
-                        <Button Grid.Row="4" Grid.Column="3" Content="30 💰"
+                        <Button Grid.Row="4" Grid.Column="3" Content="30 đź’°"
                                 Style="{StaticResource RpgButton}" Height="34"
                                 Margin="6,4" Padding="8,4" FontSize="12"
                                 Click="BuyArmor_Click"/>
@@ -204,19 +196,17 @@
                 </StackPanel>
             </Border>
 
-            <!-- Spacer -->
             <Rectangle Grid.Row="1" Grid.Column="1"/>
 
-            <!-- ═══ RIGHT: Items ═══ -->
             <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource RpgPanel}">
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" Text="🎒 ITEMS" FontSize="16"
+                    <TextBlock DockPanel.Dock="Top" Text="đźŽ’ ITEMS" FontSize="16"
                                FontWeight="Bold" Foreground="Gold" Margin="0,0,0,12">
                         <TextBlock.Effect>
                             <DropShadowEffect Color="#FFD700" BlurRadius="10" ShadowDepth="0" Opacity="0.3"/>
                         </TextBlock.Effect>
                     </TextBlock>
-                    <Button DockPanel.Dock="Bottom" Content="🛒  Buy Selected"
+                    <Button DockPanel.Dock="Bottom" Content="đź›’  Buy Selected"
                             Height="40" Margin="0,10,0,0"
                             Style="{StaticResource RpgButton}"
                             FontSize="14"
@@ -238,7 +228,6 @@
                 </DockPanel>
             </Border>
 
-            <!-- ═══ STATUS BAR ═══ -->
             <Border Grid.Row="2" Grid.ColumnSpan="3" Style="{StaticResource RpgPanel}"
                     Padding="12,8" Margin="0,10,0,0">
                 <DockPanel>

@@ -1,4 +1,4 @@
-namespace CardRPG.Models;
+namespace CardRPG.Core.Models;
 
 public enum EnemyIntent
 {
@@ -10,12 +10,14 @@ public enum EnemyIntent
 public class Enemy : Entity
 {
     public int BaseDamage { get; set; }
+    public bool IsBoss { get; set; } = false;
     public EnemyIntent CurrentIntent { get; private set; }
     public int IntentValue { get; private set; }
 
-    public Enemy(string name, int hp, int damage) : base(name, hp)
+    public Enemy(string name, int hp, int damage, bool isBoss = false) : base(name, hp)
     {
         BaseDamage = damage;
+        IsBoss = isBoss;
         PlanNextMove();
     }
 

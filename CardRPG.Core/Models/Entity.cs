@@ -1,4 +1,4 @@
-namespace CardRPG.Models;
+namespace CardRPG.Core.Models;
 
 public abstract class Entity
 {
@@ -14,7 +14,6 @@ public abstract class Entity
         CurrentHp = maxHp;
     }
 
-    //virtual allows to override methods
     public virtual void TakeDamage(int damage)
     {
         CurrentHp -= damage;

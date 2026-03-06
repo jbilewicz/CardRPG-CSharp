@@ -1,14 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using CardRPG.Models;
+using CardRPG.Core.Models;
 
-namespace CardRPG.Data;
+namespace CardRPG.Core.Data;
 
 public class GameDBContext : DbContext
 {
-    // Creating db table named Users
-    public DbSet<User> Users {get;set;}
+    public DbSet<User> Users { get; set; }
 
-    //connection configuration
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlite("Data Source = cardrpg.db");

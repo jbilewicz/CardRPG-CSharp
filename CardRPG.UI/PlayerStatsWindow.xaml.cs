@@ -27,6 +27,18 @@ public partial class PlayerStatsWindow : Window
 
         RealmTxt.Text = $"Realms Unlocked: {player.MaxRealmUnlocked}/10";
         TalentTxt.Text = $"Talent Points: {player.TalentPoints}";
+
+        // Statistics
+        var s = player.Stats;
+        StatDmgVal.Text = s.TotalDamageDealt.ToString("N0");
+        StatKillsVal.Text = s.EnemiesKilled.ToString();
+        StatElitesVal.Text = s.ElitesKilled.ToString();
+        StatBossesVal.Text = s.BossesKilled.ToString();
+        StatRealmsVal.Text = s.RealmsCompleted.ToString();
+        StatComboVal.Text = s.HighestCombo > 0 ? $"x{s.HighestCombo}" : "-";
+        StatHitVal.Text = s.HighestHit > 0 ? s.HighestHit.ToString("N0") : "-";
+        StatGoldVal.Text = s.TotalGoldEarned.ToString("N0");
+        StatEnchVal.Text = s.CardsEnchanted.ToString();
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();

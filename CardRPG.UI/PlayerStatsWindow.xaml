@@ -89,6 +89,47 @@
                 <TextBlock x:Name="TalentTxt" Text="Talent Points: 0"
                            Foreground="#FFCC44" FontSize="13" HorizontalAlignment="Center"/>
 
+                <Border Height="1" Background="#33FFD700" Margin="0,12,0,12"/>
+
+                <TextBlock Text="BATTLE STATISTICS" FontSize="14" FontWeight="Bold" Foreground="Gold"
+                           Margin="0,0,0,8"/>
+
+                <Grid Margin="10,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="26"/>
+                        <RowDefinition Height="26"/>
+                        <RowDefinition Height="26"/>
+                        <RowDefinition Height="26"/>
+                        <RowDefinition Height="26"/>
+                        <RowDefinition Height="26"/>
+                        <RowDefinition Height="26"/>
+                        <RowDefinition Height="26"/>
+                        <RowDefinition Height="26"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Total Damage Dealt"  Foreground="#E86060" FontSize="13" FontWeight="Bold"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" x:Name="StatDmgVal"    Foreground="White" FontSize="13"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Enemies Killed"   Foreground="#E8A060" FontSize="13" FontWeight="Bold"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="StatKillsVal"  Foreground="White" FontSize="13"/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Elites Killed"    Foreground="#FFD700" FontSize="13" FontWeight="Bold"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" x:Name="StatElitesVal" Foreground="White" FontSize="13"/>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Bosses Killed"    Foreground="#FF6644" FontSize="13" FontWeight="Bold"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" x:Name="StatBossesVal" Foreground="White" FontSize="13"/>
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Realms Cleared"   Foreground="#44FFAA" FontSize="13" FontWeight="Bold"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" x:Name="StatRealmsVal" Foreground="White" FontSize="13"/>
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Highest Combo"    Foreground="#CC44FF" FontSize="13" FontWeight="Bold"/>
+                    <TextBlock Grid.Row="5" Grid.Column="1" x:Name="StatComboVal"  Foreground="White" FontSize="13"/>
+                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Highest Hit"      Foreground="#FF4488" FontSize="13" FontWeight="Bold"/>
+                    <TextBlock Grid.Row="6" Grid.Column="1" x:Name="StatHitVal"    Foreground="White" FontSize="13"/>
+                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Total Gold Earned" Foreground="#FFD700" FontSize="13" FontWeight="Bold"/>
+                    <TextBlock Grid.Row="7" Grid.Column="1" x:Name="StatGoldVal"   Foreground="White" FontSize="13"/>
+                    <TextBlock Grid.Row="8" Grid.Column="0" Text="Cards Enchanted"  Foreground="#88CCFF" FontSize="13" FontWeight="Bold"/>
+                    <TextBlock Grid.Row="8" Grid.Column="1" x:Name="StatEnchVal"   Foreground="White" FontSize="13"/>
+                </Grid>
+
                 <Button Content="Close" Width="130" Height="42" Margin="0,16,0,0" FontSize="14"
                         Style="{StaticResource RpgSubtleButton}"
                         Click="CloseButton_Click"/>

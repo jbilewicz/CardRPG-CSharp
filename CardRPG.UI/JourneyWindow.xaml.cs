@@ -10,6 +10,7 @@ public partial class JourneyWindow : Window
 {
     private readonly Player _player;
     public int? SelectedRealmId { get; private set; }
+    public int SelectedDifficulty { get; private set; } = 1; // 0=Easy, 1=Normal, 2=Hard
 
     public JourneyWindow(Player player)
     {
@@ -17,13 +18,14 @@ public partial class JourneyWindow : Window
         _player = player;
         RenderRealms();
         UpdateHeader();
+        HighlightDifficultyButton();
     }
 
     private void UpdateHeader()
     {
         LevelTxt.Text = _player.Level.ToString();
         XpTxt.Text = $"{_player.XP}/{_player.XpForNextLevel}";
-        UnlockedTxt.Text = $"{_player.MaxRealmUnlocked}/10";
+        UnlockedTxt.Text = $"{_player.MaxRealmUnlocked}/25";
     }
 
     private void RenderRealms()
@@ -120,7 +122,7 @@ public partial class JourneyWindow : Window
 
                 stack.Children.Add(new TextBlock
                 {
-                    Text = $"{realm.Stages.Count} stages  |  {realm.GoldReward}g  |  {realm.XpReward} XP",
+                    Text = GetRealmInfoText(realm),
                     FontSize = 11,
                     Foreground = new SolidColorBrush(Color.FromRgb(0x88, 0x88, 0x7A)),
                     Margin = new Thickness(0, 0, 0, 4)
@@ -196,5 +198,47 @@ public partial class JourneyWindow : Window
     {
         DialogResult = false;
         Close();
+    }
+
+    private void DiffEasy_Click(object sender, RoutedEventArgs e)
+    {
+        SelectedDifficulty = 0;
+        HighlightDifficultyButton();
+        RenderRealms();
+    }
+
+    private void DiffNormal_Click(object sender, RoutedEventArgs e)
+    {
+        SelectedDifficulty = 1;
+        HighlightDifficultyButton();
+        RenderRealms();
+    }
+
+    private void DiffHard_Click(object sender, RoutedEventArgs e)
+    {
+        SelectedDifficulty = 2;
+        HighlightDifficultyButton();
+        RenderRealms();
+    }
+
+    private void HighlightDifficultyButton()
+    {
+        DiffEasyBtn.BorderThickness = new Thickness(SelectedDifficulty == 0 ? 2 : 1);
+        DiffEasyBtn.Opacity = SelectedDifficulty == 0 ? 1.0 : 0.5;
+
+        DiffNormalBtn.BorderThickness = new Thickness(SelectedDifficulty == 1 ? 2 : 1);
+        DiffNormalBtn.Opacity = SelectedDifficulty == 1 ? 1.0 : 0.5;
+
+        DiffHardBtn.BorderThickness = new Thickness(SelectedDifficulty == 2 ? 2 : 1);
+        DiffHardBtn.Opacity = SelectedDifficulty == 2 ? 1.0 : 0.5;
+    }
+
+    private string GetRealmInfoText(Realm realm)
+    {
+        double rewardMult = SelectedDifficulty switch { 0 => 0.8, 2 => 1.5, _ => 1.0 };
+        int gold = (int)(realm.GoldReward * rewardMult);
+        int xp = (int)(realm.XpReward * rewardMult);
+        string diffTag = SelectedDifficulty switch { 0 => " (Easy)", 2 => " (Hard)", _ => "" };
+        return $"{realm.Stages.Count} stages  |  {gold}g  |  {xp} XP{diffTag}";
     }
 }

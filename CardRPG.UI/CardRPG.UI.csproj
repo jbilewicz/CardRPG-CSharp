@@ -13,7 +13,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\**\*" />
+    <Resource Include="Assets\**\*" Exclude="Assets\*.wav;Assets\*.flac;Assets\*.mp3;Assets\*.ogg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\*.wav" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\*.flac" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\*.mp3" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\*.ogg" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

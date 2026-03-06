@@ -13,17 +13,29 @@ public partial class ShopWindow : Window
 
     private readonly List<Item> _stock = new()
     {
-        new Weapon("Iron Sword",      3,  100),
-        new Weapon("Steel Blade",     8,  160),
-        new Weapon("Shadow Dagger",   14, 220),
-        new Weapon("Flame Axe",       20, 320),
-        new Weapon("Frost Claymore",  28, 450),
-        new Weapon("Void Reaper",     40, 700),
-        new Consumable("Small Potion",    30,  15),
-        new Consumable("Big Potion",      50,  40),
-        new Consumable("Elixir",         100,  80),
-        new Consumable("Grand Elixir",   200, 150),
-        new Consumable("Phoenix Tear",   500, 350),
+        new Weapon("Iron Sword",        3,   100),
+        new Weapon("Steel Blade",       8,   160),
+        new Weapon("Shadow Dagger",    14,   220),
+        new Weapon("Flame Axe",        20,   320),
+        new Weapon("Frost Claymore",   28,   450),
+        new Weapon("Void Reaper",      40,   700),
+        new Weapon("Thunder Mace",     50,   950),
+        new Weapon("Obsidian Katana",  60,  1200),
+        new Weapon("Dragon Fang",      75,  1600),
+        new Weapon("Celestial Blade", 100,  2500),
+        new Weapon("Soul Harvester",  130,  3500),
+        new Weapon("Godslayer",       170,  5000),
+
+        new Consumable("Small Potion",      30,    15),
+        new Consumable("Big Potion",        50,    40),
+        new Consumable("Elixir",           100,    80),
+        new Consumable("Grand Elixir",     200,   150),
+        new Consumable("Phoenix Tear",     500,   350),
+        new Consumable("Healing Herb",      15,     8),
+        new Consumable("Antidote",          40,    25),
+        new Consumable("Dragon Blood",     300,   220),
+        new Consumable("Divine Nectar",    750,   500),
+        new Consumable("Elixir of Life",  1000,   800),
     };
 
     public ShopWindow(Player player)
@@ -52,6 +64,7 @@ public partial class ShopWindow : Window
             return false;
         }
         _player.Gold -= cost;
+        AudioManager.PlayBuySound();
         return true;
     }
 
@@ -113,15 +126,15 @@ public partial class ShopWindow : Window
 
         if (item is Weapon w)
         {
-            _player.EquippedWeapon = new Weapon(w.Name, w.DamageBonus, 0);
-            ShowStatus($"Equipped {w.Name}!");
+            _player.Inventory.Add(new Weapon(w.Name, w.DamageBonus, 0));
+            ShowStatus($"Bought {w.Name}! ({_player.Inventory.Count} items in bag)");
         }
         else
         {
             _player.Inventory.Add(item is Consumable c
                 ? new Consumable(c.Name, c.HealAmount, 0)
                 : new Item(item.Name, item.Description, 0, item.Type));
-            ShowStatus($"Bought {item.Name}!");
+            ShowStatus($"Bought {item.Name}! ({_player.Inventory.Count} items in bag)");
         }
         RefreshUI();
     }

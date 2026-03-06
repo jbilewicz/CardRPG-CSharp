@@ -1,9 +1,11 @@
 ﻿<Window x:Class="CardRPG.UI.InventoryWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Inventory" Height="650" Width="900"
+        Title="Inventory"
         Background="Black"
-        WindowStartupLocation="CenterOwner"
+        WindowState="Maximized"
+        WindowStyle="None"
+        ShowInTaskbar="False"
         ResizeMode="NoResize">
 
     <Grid>
@@ -82,11 +84,11 @@
                                    FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
                         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
                                     HorizontalAlignment="Center" Margin="0,8,0,0">
-                            <Button Content="Use / Equip" Width="120" Height="36"
-                                    Style="{StaticResource RpgTealButton}"
+                            <Button Content="Use / Equip" Width="130" Height="42"
+                                    Style="{StaticResource RpgTealButton}" FontSize="13"
                                     Click="UseButton_Click" Margin="0,0,8,0"/>
-                            <Button Content="Drop" Width="80" Height="36"
-                                    Style="{StaticResource RpgRedButton}"
+                            <Button Content="Drop" Width="90" Height="42"
+                                    Style="{StaticResource RpgRedButton}" FontSize="13"
                                     Click="DropButton_Click"/>
                         </StackPanel>
                         <ListBox x:Name="ItemList" Background="Transparent"
@@ -98,8 +100,47 @@
                 <Border Grid.Column="2" Style="{StaticResource RpgPanel}" Padding="10">
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Top" Text="CARD COLLECTION" Foreground="#FFCC44"
-                                   FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
-                        <WrapPanel x:Name="CardPanel" Orientation="Horizontal"/>
+                                   FontSize="14" FontWeight="Bold" Margin="0,0,0,4"/>
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6" HorizontalAlignment="Center">
+                            <TextBlock Text="Sort: " Foreground="#888" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <Button Content="Type" Width="75" Height="38" FontSize="12"
+                                    Style="{StaticResource RpgSubtleButton}"
+                                    Click="SortByType_Click" Margin="0,0,4,0"/>
+                            <Button Content="Rarity" Width="80" Height="38" FontSize="12"
+                                    Style="{StaticResource RpgSubtleButton}"
+                                    Click="SortByRarity_Click" Margin="0,0,4,0"/>
+                            <Button Content="Cost" Width="75" Height="38" FontSize="12"
+                                    Style="{StaticResource RpgSubtleButton}"
+                                    Click="SortByCost_Click" Margin="0,0,12,0"/>
+                            <Rectangle Width="1" Fill="#333" Margin="4,2"/>
+                            <TextBlock Text="  Filter: " Foreground="#888" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <Button Content="All" Width="60" Height="38" FontSize="12"
+                                    Style="{StaticResource RpgSubtleButton}"
+                                    Click="FilterAll_Click" Margin="0,0,4,0"/>
+                            <Button Content="ATK" Width="60" Height="38" FontSize="12"
+                                    Style="{StaticResource RpgSubtleButton}"
+                                    Click="FilterAttack_Click" Margin="0,0,4,0"/>
+                            <Button Content="DEF" Width="60" Height="38" FontSize="12"
+                                    Style="{StaticResource RpgSubtleButton}"
+                                    Click="FilterDefense_Click" Margin="0,0,4,0"/>
+                            <Button Content="PWR" Width="60" Height="38" FontSize="12"
+                                    Style="{StaticResource RpgSubtleButton}"
+                                    Click="FilterPower_Click"/>
+                        </StackPanel>
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
+                                    HorizontalAlignment="Center" Margin="0,8,0,0">
+                            <Button Content="Upgrade" Width="110" Height="40"
+                                    Style="{StaticResource RpgGreenButton}" FontSize="13"
+                                    Click="UpgradeCardButton_Click" Margin="0,0,8,0"/>
+                            <Button Content="Sell Card" Width="110" Height="40"
+                                    Style="{StaticResource RpgRedButton}" FontSize="13"
+                                    Click="SellCardButton_Click" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="SellInfoTxt" Foreground="Gray" FontSize="11"
+                                       VerticalAlignment="Center" Text="Click a card to select it"/>
+                        </StackPanel>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <WrapPanel x:Name="CardPanel" Orientation="Horizontal"/>
+                        </ScrollViewer>
                     </DockPanel>
                 </Border>
             </Grid>
@@ -109,8 +150,8 @@
                 <DockPanel>
                     <TextBlock x:Name="StatusTxt" Foreground="LimeGreen" FontSize="13"
                                VerticalAlignment="Center"/>
-                    <Button DockPanel.Dock="Right" Content="Close" Width="90" Height="38"
-                            Style="{StaticResource RpgSubtleButton}"
+                    <Button DockPanel.Dock="Right" Content="Close" Width="100" Height="42"
+                            Style="{StaticResource RpgSubtleButton}" FontSize="14"
                             Click="CloseButton_Click"/>
                 </DockPanel>
             </Border>

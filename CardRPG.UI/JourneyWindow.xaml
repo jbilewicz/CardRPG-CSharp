@@ -1,8 +1,10 @@
 <Window x:Class="CardRPG.UI.JourneyWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Realm Selection" Height="700" Width="950"
-        WindowStartupLocation="CenterOwner"
+        Title="Realm Selection"
+        WindowState="Maximized"
+        WindowStyle="None"
+        ShowInTaskbar="False"
         ResizeMode="NoResize"
         Background="Black">
 
@@ -43,6 +45,24 @@
                 <TextBlock Text="   |   " Foreground="#555" FontSize="15"/>
                 <TextBlock Text="Realms Unlocked: " Foreground="#8B8B7A" FontSize="15"/>
                 <TextBlock x:Name="UnlockedTxt" Text="1/10" Foreground="#AAA" FontSize="15"/>
+                <TextBlock Text="   |   " Foreground="#555" FontSize="15"/>
+                <TextBlock Text="Difficulty: " Foreground="#B8860B" FontSize="15" FontWeight="Bold"
+                           VerticalAlignment="Center"/>
+                <Button x:Name="DiffEasyBtn" Content="Easy" Width="70" Height="30" Margin="4,0"
+                        FontSize="13" FontWeight="Bold"
+                        Background="#33448844" Foreground="#88FF88"
+                        BorderBrush="#55448844" BorderThickness="1" Cursor="Hand"
+                        Click="DiffEasy_Click"/>
+                <Button x:Name="DiffNormalBtn" Content="Normal" Width="80" Height="30" Margin="4,0"
+                        FontSize="13" FontWeight="Bold"
+                        Background="#33FFD700" Foreground="#FFD700"
+                        BorderBrush="#55FFD700" BorderThickness="2" Cursor="Hand"
+                        Click="DiffNormal_Click"/>
+                <Button x:Name="DiffHardBtn" Content="Hard" Width="70" Height="30" Margin="4,0"
+                        FontSize="13" FontWeight="Bold"
+                        Background="#33FF4444" Foreground="#FF6644"
+                        BorderBrush="#55FF4444" BorderThickness="1" Cursor="Hand"
+                        Click="DiffHard_Click"/>
             </StackPanel>
 
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto"

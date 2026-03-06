@@ -12,10 +12,18 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         _authService = new AuthService();
+        AudioManager.PlayMenuMusic();
+    }
+
+    private void MuteBtn_Click(object sender, RoutedEventArgs e)
+    {
+        AudioManager.MenuMuted = !AudioManager.MenuMuted;
+        MuteBtn.Content = AudioManager.MenuMuted ? "🔇" : "🔊";
     }
 
     private void LoginButton_Click(object sender, RoutedEventArgs e)
     {
+        AudioManager.PlayButtonClick();
         string user = UsernameBox.Text;
         string pass = PasswordBox.Password;
 
@@ -23,7 +31,7 @@ public partial class MainWindow : Window
 
         if (loggedUser != null)
         {
-            
+            AudioManager.StopMenuMusic();
             GameWindow game = new GameWindow(loggedUser);
             game.Show();
             
@@ -38,6 +46,7 @@ public partial class MainWindow : Window
 
     private void RegisterButton_Click(object sender, RoutedEventArgs e)
     {
+        AudioManager.PlayButtonClick();
         string user = UsernameBox.Text;
         string pass = PasswordBox.Password;
 

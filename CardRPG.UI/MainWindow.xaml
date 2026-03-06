@@ -1,7 +1,8 @@
 ﻿<Window x:Class="CardRPG.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="CardRPG - Login" Height="500" Width="850"
+        Title="CardRPG - Login"
+        WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         Background="Black">
 
@@ -9,6 +10,16 @@
         <Image Source="Assets/bg_login.png" Stretch="Fill"
                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
         <Rectangle Fill="#BB000000"/>
+
+        <!-- Mute button in top-right corner -->
+        <Button x:Name="MuteBtn" Content="🔊" FontSize="22"
+                Width="44" Height="44"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                Margin="0,12,16,0" Panel.ZIndex="10"
+                Background="#44000000" Foreground="#FFD700"
+                BorderBrush="#55FFD700" BorderThickness="1"
+                Cursor="Hand" ToolTip="Mute/Unmute Music"
+                Click="MuteBtn_Click"/>
 
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 

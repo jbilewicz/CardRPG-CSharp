@@ -17,13 +17,14 @@ public partial class ArenaWindow : Window
 
     private void RefreshUI()
     {
-        HpTxt.Text = $"{_player.CurrentHp}/{_player.MaxHp}";
+        HpTxt.Text = $"{_player.CurrentHp}/{_player.GetEffectiveMaxHp()}";
         GoldTxt.Text = _player.Gold.ToString();
         BestWaveTxt.Text = _bestWave.ToString();
     }
 
     private void StartArena_Click(object sender, RoutedEventArgs e)
     {
+        AudioManager.StopMenuMusic();
         var rng = new Random();
         int wave = 0;
 
@@ -50,19 +51,33 @@ public partial class ArenaWindow : Window
 
             if (result != true)
             {
-                if (wave > _bestWave) _bestWave = wave - 1;
+                if (wave - 1 > _bestWave) _bestWave = wave - 1;
+                // Track arena waves for quests
+                if (_bestWave > 0)
+                {
+                    Quest.TrackArena(_player, _bestWave);
+                    if (_bestWave > _player.ArenaWavesCleared)
+                        _player.ArenaWavesCleared = _bestWave;
+                }
+                AudioManager.PlayMenuMusic();
                 StatusTxt.Foreground = System.Windows.Media.Brushes.OrangeRed;
                 StatusTxt.Text = $"Defeated at wave {wave}! Best: {_bestWave}";
                 RefreshUI();
                 return;
             }
 
+            // Track kill
+            _player.TotalKills++;
+            if (isBoss) _player.TotalBossKills++;
+            Quest.TrackKill(_player, enemyName, isBoss);
+
             int goldReward = rng.Next(10, 31) + (wave * 3);
             int xpReward = 10 + (wave * 8);
             _player.Gold += goldReward;
+            _player.TotalGoldEarned += goldReward;
             bool leveledUp = _player.GainXp(xpReward);
 
-            int heal = (int)(_player.MaxHp * 0.15);
+            int heal = (int)(_player.GetEffectiveMaxHp() * 0.15);
             _player.Heal(heal);
 
             string msg = $"Wave {wave} cleared!\n+{goldReward} Gold\n+{xpReward} XP\n+{heal} HP healed";
@@ -71,6 +86,7 @@ public partial class ArenaWindow : Window
             {
                 var bonusCard = CardLibrary.GetRandomCard(rng, _player.Level);
                 _player.MasterDeck.Add(bonusCard);
+                _player.TotalCardsCollected++;
                 msg += $"\nBoss bonus: NEW CARD [{bonusCard.Name}]!";
             }
 
@@ -80,6 +96,12 @@ public partial class ArenaWindow : Window
             MessageBox.Show(msg, $"Arena Wave {wave}");
 
             if (wave > _bestWave) _bestWave = wave;
+
+            // Track arena progress
+            Quest.TrackArena(_player, _bestWave);
+            if (_bestWave > _player.ArenaWavesCleared)
+                _player.ArenaWavesCleared = _bestWave;
+
             RefreshUI();
         }
     }

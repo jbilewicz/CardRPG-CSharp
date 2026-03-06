@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using CardRPG.Core.Models;
@@ -34,22 +35,87 @@ public partial class CombatWindow : Window
         EnemySprite.RenderTransform = new TranslateTransform();
         PlayerSprite.RenderTransform = new TranslateTransform();
 
+        AudioManager.PlayBattleMusic();
+
         SetEnemySprite();
+        UpdateStatusOverlays();
+        StartIdleAnimations();
         StartNewRound();
+    }
+
+    private void StartIdleAnimations()
+    {
+        // Player idle breathing
+        var playerBreath = new DoubleAnimation(1.0, 1.03, TimeSpan.FromMilliseconds(1200))
+        {
+            AutoReverse = true,
+            RepeatBehavior = RepeatBehavior.Forever,
+            EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut }
+        };
+        var playerTransform = new ScaleTransform(1, 1);
+        PlayerSprite.RenderTransform = playerTransform;
+        PlayerSprite.RenderTransformOrigin = new Point(0.5, 1);
+        playerTransform.BeginAnimation(ScaleTransform.ScaleYProperty, playerBreath);
+
+        // Enemy idle hovering
+        var enemyHover = new DoubleAnimation(0, -6, TimeSpan.FromMilliseconds(1500))
+        {
+            AutoReverse = true,
+            RepeatBehavior = RepeatBehavior.Forever,
+            EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut }
+        };
+        var enemyTransform = new TranslateTransform(0, 0);
+        EnemySprite.RenderTransform = enemyTransform;
+        enemyTransform.BeginAnimation(TranslateTransform.YProperty, enemyHover);
     }
 
     private void SetEnemySprite()
     {
         string spritePath = _enemy.Name.ToLower() switch
         {
+            // Realm 1 - Verdant Meadows
             var n when n.Contains("slime") => "Assets/slime.png",
+
+            // Realm 2 - Dark Forest
+            var n when n.Contains("wolf") => "Assets/wolf.png",
+            var n when n.Contains("spider") => "Assets/spider.png",
+            var n when n.Contains("treant") => "Assets/gryf.png",
+            var n when n.Contains("bear") => "Assets/wolf.png",
+
+            // Realm 3 - Goblin Caves
+            var n when n.Contains("goblin") && n.Contains("shaman") => "Assets/necromant_goblin.png",
+            var n when n.Contains("goblin") && n.Contains("chieftain") => "Assets/necromant_goblin.png",
             var n when n.Contains("goblin") => "Assets/goblin.png",
-            var n when n.Contains("wolf") || n.Contains("bear") => "Assets/slime.png",
-            var n when n.Contains("spider") || n.Contains("treant") => "Assets/goblin.png",
-            var n when n.Contains("dragon") || n.Contains("drake") || n.Contains("wyrm") => "Assets/arcwarlord.png",
-            var n when n.Contains("demon") || n.Contains("void") || n.Contains("abyss") => "Assets/arcwarlord.png",
+
+            // Realm 4 - Frozen Tundra
+            var n when n.Contains("ice") || n.Contains("frost") => "Assets/golem.png",
+
+            // Realm 5 - Volcanic Depths
+            var n when n.Contains("magma") || n.Contains("golem") => "Assets/golem.png",
+            var n when n.Contains("fire") || n.Contains("inferno") => "Assets/necromant_goblin.png",
+
+            // Realm 6 - Shadow Marsh
+            var n when n.Contains("lich") => "Assets/necromant_goblin.png",
+            var n when n.Contains("skeleton") || n.Contains("wraith") => "Assets/skeleton_archer.png",
+
+            // Realm 7 - Crystal Caverns
+            var n when n.Contains("crystal") || n.Contains("diamond") => "Assets/golem.png",
+
+            // Realm 8 - Dragon's Peak
+            var n when n.Contains("wyvern") || n.Contains("drake") => "Assets/gryf.png",
+            var n when n.Contains("dragon") => "Assets/arcwarlord.png",
+
+            // Realm 9 - Demon Wasteland
+            var n when n.Contains("imp") || n.Contains("succubus") => "Assets/necromant_goblin.png",
+            var n when n.Contains("demon") => "Assets/arcwarlord.png",
+
+            // Realm 10 - Abyss of Eternity
+            var n when n.Contains("void") || n.Contains("abyss") => "Assets/arcwarlord.png",
+
+            // Arena & bosses
             var n when n.Contains("orc") || n.Contains("warlord") || _enemy.IsBoss => "Assets/arcwarlord.png",
             var n when n.Contains("arena") => "Assets/arcwarlord.png",
+
             _ => "Assets/slime.png"
         };
 
@@ -96,6 +162,8 @@ public partial class CombatWindow : Window
     private void EnableHand()
     {
         _actionInProgress = false;
+        TurnIndicatorTxt.Text = "YOUR TURN";
+        TurnIndicatorTxt.Foreground = Brushes.LimeGreen;
         RefreshUI();
         RenderHand();
     }
@@ -249,8 +317,8 @@ public partial class CombatWindow : Window
             {
                 Content = cardStack,
                 Tag = card,
-                Width = 140,
-                Height = 190,
+                Width = 160,
+                Height = 210,
                 Margin = new Thickness(6),
                 IsEnabled = canAfford && !_actionInProgress,
                 Foreground = Brushes.White,
@@ -290,17 +358,27 @@ public partial class CombatWindow : Window
         {
             string color = result.IsCrit ? "#FFD700" : "#FF8888";
             AddLog($"ATK: {result.Message}", color);
+            AudioManager.PlayAttackSound();
+            await AnimateCardPlay(btn, card);
             await SafeShake(EnemySprite);
             await SafeFloatingDmg(EnemyDmgPopup, result.DamageDealt);
         }
         else if (card.Type == CardType.Power)
         {
             AddLog($"PWR: {result.Message}", "#88FF88");
+            await AnimateCardPlay(btn, card);
+            if (result.Message != null && result.Message.Contains("HP"))
+                await SafeHealPopup(result.DamageDealt);
         }
         else
         {
             AddLog($"DEF: {result.Message}", "#8888FF");
+            await AnimateCardPlay(btn, card);
+            await SafeArmorFlash();
         }
+
+        await ShowCombo(result);
+        UpdateStatusOverlays();
 
         if (!string.IsNullOrEmpty(result.AbilityMessage))
             AddLog($"  >> {result.AbilityMessage}", "#FFCC44");
@@ -339,6 +417,9 @@ public partial class CombatWindow : Window
         EndTurnBtn.IsEnabled = false;
         SetHandEnabled(false);
 
+        TurnIndicatorTxt.Text = "ENEMY TURN";
+        TurnIndicatorTxt.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF6644"));
+
         AddLog("...", "#555555");
         await Task.Delay(500);
         if (_closing) return;
@@ -363,6 +444,7 @@ public partial class CombatWindow : Window
             AddLog($"HIT: {result.Message ?? "Enemy attacks!"}", "#FF4444");
             if (!_closing)
             {
+                AudioManager.PlayAttackSound();
                 await SafeFlash();
                 await SafeShake(PlayerSprite);
                 await SafeFloatingDmg(PlayerDmgPopup, result.DamageDealt);
@@ -372,6 +454,7 @@ public partial class CombatWindow : Window
         if (!string.IsNullOrEmpty(result.AbilityMessage))
             AddLog($"  >> {result.AbilityMessage}", "#FFCC44");
 
+        UpdateStatusOverlays();
         RefreshUI();
 
         if (_closing) return;
@@ -399,6 +482,7 @@ public partial class CombatWindow : Window
     {
         if (_closing) return;
         _closing = true;
+        AudioManager.StopBattleMusic();
         RefreshUI();
         DialogResult = true;
     }
@@ -407,6 +491,7 @@ public partial class CombatWindow : Window
     {
         if (_closing) return;
         _closing = true;
+        AudioManager.StopBattleMusic();
         _player.CurrentHp = 1;
         _player.Gold = Math.Max(0, _player.Gold - 10);
         RefreshUI();
@@ -468,18 +553,25 @@ public partial class CombatWindow : Window
         try
         {
             if (_closing) return;
-            if (element.RenderTransform is not TranslateTransform transform)
+            TranslateTransform transform;
+            if (element.RenderTransform is TranslateTransform existing)
+            {
+                transform = existing;
+            }
+            else
             {
                 transform = new TranslateTransform();
                 element.RenderTransform = transform;
             }
+            double baseX = transform.X;
             int[] offsets = [10, -10, 8, -8, 4, -4, 0];
             foreach (int offset in offsets)
             {
-                if (_closing) { transform.X = 0; return; }
-                transform.X = offset;
+                if (_closing) { transform.X = baseX; return; }
+                transform.X = baseX + offset;
                 await Task.Delay(25);
             }
+            transform.X = baseX;
         }
         catch { }
     }
@@ -518,5 +610,160 @@ public partial class CombatWindow : Window
             popup.Opacity = 0;
         }
         catch { }
+    }
+
+    private async Task AnimateCardPlay(Button btn, Card card)
+    {
+        try
+        {
+            if (_closing) return;
+            var transform = new ScaleTransform(1, 1);
+            btn.RenderTransform = transform;
+            btn.RenderTransformOrigin = new Point(0.5, 0.5);
+
+            // Scale up briefly
+            for (int i = 0; i < 5; i++)
+            {
+                if (_closing) return;
+                double scale = 1.0 + (i * 0.04);
+                transform.ScaleX = scale;
+                transform.ScaleY = scale;
+                await Task.Delay(20);
+            }
+
+            // Fade out and scale down
+            for (int i = 0; i < 8; i++)
+            {
+                if (_closing) return;
+                double scale = 1.2 - (i * 0.15);
+                btn.Opacity = Math.Max(0, 1.0 - (i * 0.13));
+                transform.ScaleX = Math.Max(0.1, scale);
+                transform.ScaleY = Math.Max(0.1, scale);
+                await Task.Delay(20);
+            }
+            btn.Visibility = Visibility.Collapsed;
+        }
+        catch { }
+    }
+
+    private async Task SafeHealPopup(int healAmount)
+    {
+        try
+        {
+            if (_closing || healAmount <= 0) return;
+            PlayerHealPopup.Text = $"+{healAmount}";
+            PlayerHealPopup.Opacity = 1;
+            PlayerHealPopup.RenderTransform = new TranslateTransform(0, 0);
+
+            // Green heal flash
+            PlayerHealOverlay.Opacity = 0.3;
+            await Task.Delay(120);
+            if (_closing) { PlayerHealOverlay.Opacity = 0; PlayerHealPopup.Opacity = 0; return; }
+            PlayerHealOverlay.Opacity = 0.15;
+            await Task.Delay(120);
+            PlayerHealOverlay.Opacity = 0;
+
+            for (int i = 0; i < 12; i++)
+            {
+                if (_closing) { PlayerHealPopup.Opacity = 0; return; }
+                PlayerHealPopup.Opacity = Math.Max(0, 1.0 - (i * 0.09));
+                ((TranslateTransform)PlayerHealPopup.RenderTransform).Y = -(i * 3);
+                await Task.Delay(30);
+            }
+            PlayerHealPopup.Opacity = 0;
+        }
+        catch { }
+    }
+
+    private async Task SafeArmorFlash()
+    {
+        try
+        {
+            if (_closing) return;
+            PlayerArmorOverlay.Opacity = 0.3;
+            await Task.Delay(100);
+            if (_closing) { PlayerArmorOverlay.Opacity = 0; return; }
+            PlayerArmorOverlay.Opacity = 0.15;
+            await Task.Delay(100);
+            PlayerArmorOverlay.Opacity = 0;
+        }
+        catch { }
+    }
+
+    private async Task ShowCombo(CombatResult result)
+    {
+        try
+        {
+            if (_closing || result.ComboCount < 2) return;
+            AddLog($"  \u2B50 COMBO x{result.ComboCount}! +{result.ComboBonus} bonus!", "#FFD700");
+
+            // Pulse the combo border
+            ComboBorder.Opacity = 1;
+            var transform = new ScaleTransform(1, 1);
+            ComboBorder.RenderTransform = transform;
+            ComboBorder.RenderTransformOrigin = new Point(0.5, 0.5);
+
+            for (int i = 0; i < 4; i++)
+            {
+                if (_closing) return;
+                double s = 1.0 + (i < 2 ? i * 0.1 : (4 - i) * 0.1);
+                transform.ScaleX = s;
+                transform.ScaleY = s;
+                await Task.Delay(50);
+            }
+            transform.ScaleX = 1;
+            transform.ScaleY = 1;
+        }
+        catch { }
+    }
+
+    private void UpdateStatusOverlays()
+    {
+        try
+        {
+            // Update combo display
+            if (_engine.ComboCount > 1)
+            {
+                ComboTxt.Text = $"COMBO x{_engine.ComboCount}! (+{(_engine.ComboCount - 1) * 2})";
+                ComboBorder.Opacity = 1;
+            }
+            else
+            {
+                ComboBorder.Opacity = 0;
+            }
+
+            bool hasBurn = _engine.StatusEffects.Any(e => e.Name == "Burn" && e.AppliesToEnemy);
+            bool hasPoison = _engine.StatusEffects.Any(e => e.Name == "Poison" && e.AppliesToEnemy);
+            bool hasBleed = _engine.StatusEffects.Any(e => e.Name == "Bleed" && e.AppliesToEnemy);
+            bool hasStun = _engine.EnemyStunned;
+
+            EnemyBurnOverlay.Opacity = hasBurn ? 0.25 : 0;
+            EnemyBurnOverlay.Background = new SolidColorBrush(Color.FromArgb(hasBurn ? (byte)0x40 : (byte)0, 0xFF, 0x44, 0x00));
+
+            EnemyPoisonOverlay.Opacity = hasPoison ? 0.25 : 0;
+            EnemyPoisonOverlay.Background = new SolidColorBrush(Color.FromArgb(hasPoison ? (byte)0x40 : (byte)0, 0x44, 0xFF, 0x00));
+
+            EnemyBleedOverlay.Opacity = hasBleed ? 0.2 : 0;
+            EnemyBleedOverlay.Background = new SolidColorBrush(Color.FromArgb(hasBleed ? (byte)0x40 : (byte)0, 0x88, 0x00, 0x00));
+
+            EnemyStunOverlay.Opacity = hasStun ? 0.2 : 0;
+            EnemyStunOverlay.Background = new SolidColorBrush(Color.FromArgb(hasStun ? (byte)0x30 : (byte)0, 0xFF, 0xFF, 0x00));
+
+            // Status icons on enemy
+            var icons = new List<string>();
+            if (hasBurn) icons.Add("\U0001F525");
+            if (hasPoison) icons.Add("\u2620");
+            if (hasBleed) icons.Add("\U0001FA78");
+            if (hasStun) icons.Add("\u26A1");
+            EnemyStatusIcon.Text = string.Join(" ", icons);
+            EnemyStatusIcon.Opacity = icons.Count > 0 ? 1 : 0;
+        }
+        catch { }
+    }
+
+    private void BattleMuteBtn_Click(object sender, RoutedEventArgs e)
+    {
+        AudioManager.BattleMuted = !AudioManager.BattleMuted;
+        BattleMuteBtn.Content = AudioManager.BattleMuted ? "🔇" : "🔊";
     }
 }

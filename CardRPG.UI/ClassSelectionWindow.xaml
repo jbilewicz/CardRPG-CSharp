@@ -1,0 +1,102 @@
+<Window x:Class="CardRPG.UI.ClassSelectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Choose Your Class" Height="520" Width="780"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="Black">
+
+    <Grid>
+        <Image Source="Assets/bg_city.avif" Stretch="Fill"
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <Rectangle Fill="#DD0A0A15"/>
+
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="CHOOSE YOUR CLASS" FontSize="32" FontWeight="Bold"
+                       HorizontalAlignment="Center" Margin="0,0,0,8">
+                <TextBlock.Foreground>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#FFD700" Offset="0"/>
+                        <GradientStop Color="#FFA500" Offset="1"/>
+                    </LinearGradientBrush>
+                </TextBlock.Foreground>
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="#FFD700" BlurRadius="16" ShadowDepth="0" Opacity="0.4"/>
+                </TextBlock.Effect>
+            </TextBlock>
+            <TextBlock Text="Each class has unique starting cards, stats, and a passive ability."
+                       FontSize="13" Foreground="#8B8B7A" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <!-- WARRIOR -->
+                <Border Style="{StaticResource RpgPanel}" Width="210" Margin="8" Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="⚔️ WARRIOR" FontSize="20" FontWeight="Bold"
+                                   Foreground="#FF4444" HorizontalAlignment="Center">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="#FF4444" BlurRadius="8" ShadowDepth="0" Opacity="0.4"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                        <Border Height="1" Background="#33FFFFFF" Margin="0,8,0,8"/>
+                        <TextBlock Text="+3 Strength" Foreground="#FFAAAA" FontSize="12" HorizontalAlignment="Center"/>
+                        <TextBlock Text="+15 Max HP" Foreground="#FFAAAA" FontSize="12" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Passive: +5 ATK damage" Foreground="#FF8888" FontSize="11"
+                                   FontWeight="Bold" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                        <Border Height="1" Background="#33FFFFFF" Margin="0,8,0,8"/>
+                        <TextBlock Text="Starter: 6 Strikes, 3 Defends, 1 Heavy Blow" Foreground="#999"
+                                   FontSize="10" TextWrapping="Wrap" TextAlignment="Center"/>
+                        <Button Content="SELECT" Height="40" Margin="0,12,0,0"
+                                Style="{StaticResource RpgRedButton}" FontSize="13"
+                                Click="WarriorButton_Click"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ROGUE -->
+                <Border Style="{StaticResource RpgPanel}" Width="210" Margin="8" Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="🗡️ ROGUE" FontSize="20" FontWeight="Bold"
+                                   Foreground="#44FF44" HorizontalAlignment="Center">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="#44FF44" BlurRadius="8" ShadowDepth="0" Opacity="0.4"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                        <Border Height="1" Background="#33FFFFFF" Margin="0,8,0,8"/>
+                        <TextBlock Text="+3 Agility" Foreground="#AAFFAA" FontSize="12" HorizontalAlignment="Center"/>
+                        <TextBlock Text="+8% Dodge chance" Foreground="#AAFFAA" FontSize="12" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Passive: +8% dodge" Foreground="#88FF88" FontSize="11"
+                                   FontWeight="Bold" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                        <Border Height="1" Background="#33FFFFFF" Margin="0,8,0,8"/>
+                        <TextBlock Text="Starter: 4 Strikes, 3 Defends, Twin Cut, Quick Block, Poison Dart"
+                                   Foreground="#999" FontSize="10" TextWrapping="Wrap" TextAlignment="Center"/>
+                        <Button Content="SELECT" Height="40" Margin="0,12,0,0"
+                                Style="{StaticResource RpgGreenButton}" FontSize="13"
+                                Click="RogueButton_Click"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- MAGE -->
+                <Border Style="{StaticResource RpgPanel}" Width="210" Margin="8" Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="🔮 MAGE" FontSize="20" FontWeight="Bold"
+                                   Foreground="#44AAFF" HorizontalAlignment="Center">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="#44AAFF" BlurRadius="8" ShadowDepth="0" Opacity="0.4"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                        <Border Height="1" Background="#33FFFFFF" Margin="0,8,0,8"/>
+                        <TextBlock Text="+3 Intelligence" Foreground="#AACCFF" FontSize="12" HorizontalAlignment="Center"/>
+                        <TextBlock Text="+1 Max Mana" Foreground="#AACCFF" FontSize="12" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Passive: +1 card draw" Foreground="#88AAFF" FontSize="11"
+                                   FontWeight="Bold" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                        <Border Height="1" Background="#33FFFFFF" Margin="0,8,0,8"/>
+                        <TextBlock Text="Starter: 3 Strikes, 3 Defends, Focus, Heal, Weaken, Tactical Draw"
+                                   Foreground="#999" FontSize="10" TextWrapping="Wrap" TextAlignment="Center"/>
+                        <Button Content="SELECT" Height="40" Margin="0,12,0,0"
+                                Style="{StaticResource RpgButton}" FontSize="13"
+                                Click="MageButton_Click"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

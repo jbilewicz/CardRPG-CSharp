@@ -13,12 +13,24 @@ public partial class ShopWindow : Window
 
     private readonly List<Item> _stock = new()
     {
+        // Weapons
         new Weapon("Iron Sword",      3,  100),
         new Weapon("Steel Blade",     8,  160),
         new Weapon("Shadow Dagger",   14, 220),
         new Weapon("Flame Axe",       20, 320),
         new Weapon("Frost Claymore",  28, 450),
         new Weapon("Void Reaper",     40, 700),
+        // Armor
+        new ArmorItem("Leather Vest",     2,  80),
+        new ArmorItem("Chainmail",        5,  180),
+        new ArmorItem("Plate Armor",      9,  300),
+        new ArmorItem("Dragon Scales",   15,  550),
+        // Accessories
+        new Accessory("Lucky Charm",     "+5% Crit",       120, critBonus: 5),
+        new Accessory("Swift Boots",     "+8% Dodge",      150, dodgeBonus: 8),
+        new Accessory("Mana Crystal",    "+1 Mana",        200, manaBonus: 1),
+        new Accessory("Ring of Power",   "+8% Crit +5% Dodge", 400, critBonus: 8, dodgeBonus: 5),
+        // Consumables
         new Consumable("Small Potion",    30,  15),
         new Consumable("Big Potion",      50,  40),
         new Consumable("Elixir",         100,  80),
@@ -115,6 +127,16 @@ public partial class ShopWindow : Window
         {
             _player.EquippedWeapon = new Weapon(w.Name, w.DamageBonus, 0);
             ShowStatus($"Equipped {w.Name}!");
+        }
+        else if (item is ArmorItem a)
+        {
+            _player.EquippedArmor = new ArmorItem(a.Name, a.DamageReduction, 0);
+            ShowStatus($"Equipped {a.Name}!");
+        }
+        else if (item is Accessory acc)
+        {
+            _player.EquippedAccessory = new Accessory(acc.Name, acc.Effect, 0, acc.CritBonus, acc.DodgeBonus, acc.ManaBonus);
+            ShowStatus($"Equipped {acc.Name}!");
         }
         else
         {

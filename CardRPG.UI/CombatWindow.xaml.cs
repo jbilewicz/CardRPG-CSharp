@@ -74,7 +74,7 @@ public partial class CombatWindow : Window
             return;
         }
 
-        _player.CurrentMana = _player.MaxMana;
+        _player.CurrentMana = _player.MaxMana + _player.GetBonusMana();
         if (!_engine.FortifyActive)
             _player.Armor = 0;
         _hand = _engine.DrawHand();
@@ -108,6 +108,7 @@ public partial class CombatWindow : Window
             bool canAfford = card.Cost <= _player.CurrentMana;
             bool isAttack = card.Type == CardType.Attack;
             bool isPower = card.Type == CardType.Power;
+            bool isCurse = card.IsCurse;
 
             var cardStack = new StackPanel
             {
@@ -123,14 +124,29 @@ public partial class CombatWindow : Window
                 _ => Color.FromRgb(0xAA, 0xAA, 0xAA),
             };
 
-            if (card.Rarity != CardRarity.Common)
+            if (isCurse)
             {
                 cardStack.Children.Add(new TextBlock
                 {
-                    Text = card.Rarity.ToString().ToUpper(),
+                    Text = "☠ CURSE",
+                    FontSize = 10,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = new SolidColorBrush(Color.FromRgb(0xCC, 0x22, 0xFF)),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 0, 0, 2)
+                });
+            }
+            else if (card.Rarity != CardRarity.Common || card.IsEvolved)
+            {
+                string label = card.IsEvolved ? "✨ EVOLVED" : card.Rarity.ToString().ToUpper();
+                Color labelColor = card.IsEvolved ? Color.FromRgb(0xFF, 0xD7, 0x00) : rarityColor;
+
+                cardStack.Children.Add(new TextBlock
+                {
+                    Text = label,
                     FontSize = 9,
                     FontWeight = FontWeights.Bold,
-                    Foreground = new SolidColorBrush(rarityColor),
+                    Foreground = new SolidColorBrush(labelColor),
                     HorizontalAlignment = HorizontalAlignment.Center,
                     Margin = new Thickness(0, 0, 0, 2)
                 });
@@ -149,7 +165,7 @@ public partial class CombatWindow : Window
 
             cardStack.Children.Add(new TextBlock
             {
-                Text = card.Name,
+                Text = card.DisplayName,
                 FontWeight = FontWeights.Bold,
                 FontSize = 13,
                 Foreground = Brushes.White,
@@ -163,7 +179,8 @@ public partial class CombatWindow : Window
             if (isAttack)
             {
                 int displayValue = card.Value + _player.GetTotalDamage();
-                valueLabel = $"{displayValue} DMG";
+                string hitLabel = card.HitCount > 1 ? $" x{card.HitCount}" : "";
+                valueLabel = $"{displayValue} DMG{hitLabel}";
                 valueColor = Color.FromRgb(0xFF, 0xAA, 0xAA);
             }
             else if (isPower)
@@ -229,13 +246,16 @@ public partial class CombatWindow : Window
             });
             cardStack.Children.Add(costPanel);
 
-            Color bgStart = isAttack ? Color.FromRgb(0x50, 0x14, 0x14)
+            Color bgStart = isCurse ? Color.FromRgb(0x30, 0x08, 0x30)
+                          : isAttack ? Color.FromRgb(0x50, 0x14, 0x14)
                           : isPower ? Color.FromRgb(0x14, 0x50, 0x14)
                           : Color.FromRgb(0x14, 0x20, 0x50);
-            Color bgEnd = isAttack ? Color.FromRgb(0x28, 0x08, 0x08)
+            Color bgEnd = isCurse ? Color.FromRgb(0x18, 0x04, 0x18)
+                        : isAttack ? Color.FromRgb(0x28, 0x08, 0x08)
                         : isPower ? Color.FromRgb(0x08, 0x28, 0x08)
                         : Color.FromRgb(0x08, 0x10, 0x28);
-            Color borderColor = card.Rarity switch
+            Color borderColor = isCurse ? Color.FromRgb(0xCC, 0x22, 0xFF)
+                : card.Rarity switch
             {
                 CardRarity.Legendary => Color.FromRgb(0xFF, 0xAA, 0x00),
                 CardRarity.Rare => Color.FromRgb(0x44, 0xAA, 0xFF),
@@ -260,6 +280,25 @@ public partial class CombatWindow : Window
 
             if (TryFindResource("CardButton") is Style cardStyle)
                 btn.Style = cardStyle;
+
+            // Glow effect on evolved, upgraded or legendary cards
+            if (card.IsEvolved || card.UpgradeLevel > 0 || card.Rarity >= CardRarity.Rare)
+            {
+                Color glowColor = card.IsEvolved
+                    ? Color.FromRgb(0xFF, 0xD7, 0x00)
+                    : card.Rarity == CardRarity.Legendary
+                        ? Color.FromRgb(0xFF, 0xAA, 0x00)
+                        : card.Rarity == CardRarity.Rare
+                            ? Color.FromRgb(0x44, 0xAA, 0xFF)
+                            : Color.FromRgb(0x88, 0xFF, 0x88);
+                btn.Effect = new DropShadowEffect
+                {
+                    Color = glowColor,
+                    BlurRadius = card.IsEvolved ? 20 : card.Rarity == CardRarity.Legendary ? 18 : 10,
+                    ShadowDepth = 0,
+                    Opacity = card.IsEvolved ? 0.8 : card.Rarity == CardRarity.Legendary ? 0.7 : 0.4
+                };
+            }
 
             btn.Click += CardButton_Click;
             HandPanel.Children.Add(btn);
@@ -286,11 +325,35 @@ public partial class CombatWindow : Window
         var result = _engine.PlayCard(card);
         _hand.Remove(card);
 
-        if (card.Type == CardType.Attack)
+        if (card.IsCurse)
+        {
+            AddLog($"CURSE: {result.Message}", "#CC22FF");
+            if (result.DamageDealt > 0)
+            {
+                await SafeFlash();
+                await SafeShake(PlayerSprite);
+                await SafeFloatingDmg(PlayerDmgPopup, result.DamageDealt);
+            }
+        }
+        else if (card.Type == CardType.Attack)
         {
             string color = result.IsCrit ? "#FFD700" : "#FF8888";
             AddLog($"ATK: {result.Message}", color);
-            await SafeShake(EnemySprite);
+
+            // Legendary cards get intense shake + golden flash
+            if (card.Rarity == CardRarity.Legendary)
+            {
+                await SafeGoldenFlash();
+                await SafeShake(EnemySprite, intense: true);
+            }
+            else if (result.IsCrit)
+            {
+                await SafeShake(EnemySprite, intense: true);
+            }
+            else
+            {
+                await SafeShake(EnemySprite);
+            }
             await SafeFloatingDmg(EnemyDmgPopup, result.DamageDealt);
         }
         else if (card.Type == CardType.Power)
@@ -363,8 +426,10 @@ public partial class CombatWindow : Window
             AddLog($"HIT: {result.Message ?? "Enemy attacks!"}", "#FF4444");
             if (!_closing)
             {
+                // Intense flash for double strikes or heavy hits
+                bool heavyHit = result.DamageDealt > 20;
                 await SafeFlash();
-                await SafeShake(PlayerSprite);
+                await SafeShake(PlayerSprite, intense: heavyHit);
                 await SafeFloatingDmg(PlayerDmgPopup, result.DamageDealt);
             }
         }
@@ -399,6 +464,14 @@ public partial class CombatWindow : Window
     {
         if (_closing) return;
         _closing = true;
+
+        // Save combat stats to player
+        _player.Stats.TotalDamageDealt += _engine.TotalDamageDealt;
+        if (_engine.HighestCombo > _player.Stats.HighestCombo)
+            _player.Stats.HighestCombo = _engine.HighestCombo;
+        if (_engine.HighestHit > _player.Stats.HighestHit)
+            _player.Stats.HighestHit = _engine.HighestHit;
+
         RefreshUI();
         DialogResult = true;
     }
@@ -427,6 +500,46 @@ public partial class CombatWindow : Window
             EnemyHpBar.Maximum = _enemy.MaxHp;
             EnemyHpBar.Value = Math.Max(0, _enemy.CurrentHp);
             EnemyHpTxt.Text = $"{_enemy.CurrentHp} / {_enemy.MaxHp} HP";
+
+            // Enrage visual indicator
+            if (_enemy.IsBoss && _enemy.Phase != EnragePhase.Normal)
+            {
+                string phaseLabel = _enemy.Phase == EnragePhase.Berserk ? " [BERSERK]" : " [ENRAGED]";
+                EnemyNameTxt.Text += phaseLabel;
+                EnemyNameSmallTxt.Text += phaseLabel;
+                EnemyNameTxt.Foreground = _enemy.Phase == EnragePhase.Berserk
+                    ? new SolidColorBrush(Color.FromRgb(0xFF, 0x22, 0x22))
+                    : new SolidColorBrush(Color.FromRgb(0xFF, 0x66, 0x00));
+
+                // Pulsing glow on enraged enemy sprite
+                Color enrageGlow = _enemy.Phase == EnragePhase.Berserk
+                    ? Color.FromRgb(0xFF, 0x00, 0x00)
+                    : Color.FromRgb(0xFF, 0x66, 0x00);
+                EnemySprite.Effect = new DropShadowEffect
+                {
+                    Color = enrageGlow,
+                    BlurRadius = _enemy.Phase == EnragePhase.Berserk ? 30 : 18,
+                    ShadowDepth = 0,
+                    Opacity = _enemy.Phase == EnragePhase.Berserk ? 0.8 : 0.5
+                };
+            }
+            else if (_enemy.IsElite)
+            {
+                EnemyNameTxt.Foreground = new SolidColorBrush(Color.FromRgb(0xCC, 0x88, 0xFF));
+                EnemyNameSmallTxt.Foreground = new SolidColorBrush(Color.FromRgb(0xCC, 0x88, 0xFF));
+                EnemySprite.Effect = new DropShadowEffect
+                {
+                    Color = Color.FromRgb(0xCC, 0x88, 0xFF),
+                    BlurRadius = 14,
+                    ShadowDepth = 0,
+                    Opacity = 0.5
+                };
+            }
+            else
+            {
+                EnemyNameTxt.Foreground = new SolidColorBrush(Color.FromRgb(0xFF, 0x45, 0x00));
+                EnemySprite.Effect = null;
+            }
 
             PlayerHpBar.Maximum = _player.MaxHp;
             PlayerHpBar.Value = Math.Max(0, _player.CurrentHp);
@@ -463,7 +576,7 @@ public partial class CombatWindow : Window
         catch { }
     }
 
-    private async Task SafeShake(FrameworkElement element)
+    private async Task SafeShake(FrameworkElement element, bool intense = false)
     {
         try
         {
@@ -473,12 +586,29 @@ public partial class CombatWindow : Window
                 transform = new TranslateTransform();
                 element.RenderTransform = transform;
             }
-            int[] offsets = [10, -10, 8, -8, 4, -4, 0];
-            foreach (int offset in offsets)
+
+            if (intense)
             {
-                if (_closing) { transform.X = 0; return; }
-                transform.X = offset;
-                await Task.Delay(25);
+                // Big shake for crits/legendaries
+                int[] offsets = [18, -18, 14, -14, 10, -10, 6, -6, 3, -3, 0];
+                foreach (int offset in offsets)
+                {
+                    if (_closing) { transform.X = 0; transform.Y = 0; return; }
+                    transform.X = offset;
+                    transform.Y = offset / 2;
+                    await Task.Delay(20);
+                }
+                transform.Y = 0;
+            }
+            else
+            {
+                int[] offsets = [10, -10, 8, -8, 4, -4, 0];
+                foreach (int offset in offsets)
+                {
+                    if (_closing) { transform.X = 0; return; }
+                    transform.X = offset;
+                    await Task.Delay(25);
+                }
             }
         }
         catch { }
@@ -518,5 +648,30 @@ public partial class CombatWindow : Window
             popup.Opacity = 0;
         }
         catch { }
+    }
+
+    private async Task SafeGoldenFlash()
+    {
+        try
+        {
+            if (_closing) return;
+            HitFlash.Fill = new SolidColorBrush(Color.FromRgb(0xFF, 0xD7, 0x00));
+            HitFlash.Opacity = 0.35;
+            await Task.Delay(80);
+            if (_closing) { HitFlash.Opacity = 0; ResetFlashColor(); return; }
+            HitFlash.Opacity = 0.15;
+            await Task.Delay(80);
+            if (_closing) { HitFlash.Opacity = 0; ResetFlashColor(); return; }
+            HitFlash.Opacity = 0.05;
+            await Task.Delay(60);
+            HitFlash.Opacity = 0;
+            ResetFlashColor();
+        }
+        catch { ResetFlashColor(); }
+    }
+
+    private void ResetFlashColor()
+    {
+        try { HitFlash.Fill = new SolidColorBrush(Color.FromRgb(0xFF, 0x00, 0x00)); } catch { }
     }
 }

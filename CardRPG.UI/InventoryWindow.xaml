@@ -51,6 +51,16 @@
                                 </TextBlock.Effect>
                             </TextBlock>
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                            <TextBlock Text="Armor: " Foreground="#8B8B7A" FontSize="14"/>
+                            <TextBlock x:Name="ArmorItemTxt" Text="None" Foreground="#88CCFF"
+                                       FontSize="14" FontWeight="Bold"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                            <TextBlock Text="Accessory: " Foreground="#8B8B7A" FontSize="14"/>
+                            <TextBlock x:Name="AccessoryTxt" Text="None" Foreground="#FFCC88"
+                                       FontSize="14" FontWeight="Bold"/>
+                        </StackPanel>
                     </StackPanel>
 
                     <Rectangle Grid.Column="1" Width="1" Fill="#333" Margin="12,0"/>

@@ -32,8 +32,12 @@ public partial class GameWindow : Window
 
     private Player CreateNewPlayer()
     {
-        var p = new Player(_currentUser.Username);
-        p.MasterDeck = CardLibrary.GetStarterDeck();
+        var classWin = new ClassSelectionWindow();
+        classWin.ShowDialog();
+        var selectedClass = classWin.SelectedClass;
+
+        var p = new Player(_currentUser.Username, selectedClass);
+        p.MasterDeck = CardLibrary.GetStarterDeck(selectedClass);
         return p;
     }
 
@@ -88,6 +92,64 @@ public partial class GameWindow : Window
                 var stage = realm.Stages[i];
                 int stageNumber = i + 1;
 
+                // Random event before non-boss, non-first stages (40% chance)
+                if (i > 0 && !stage.IsBoss && rng.Next(100) < 40)
+                {
+                    var journeyEvent = JourneyEvent.GetRandomEvent(rng);
+                    var eventWin = new EventWindow(_player, journeyEvent) { Owner = this };
+                    eventWin.ShowDialog();
+
+                    if (_player.IsDead)
+                    {
+                        _player.CurrentHp = 1;
+                        MessageBox.Show("The event left you barely alive. Returning to town.", "Close Call");
+                        SavePlayer();
+                        UpdateUI();
+                        return;
+                    }
+
+                    UpdateUI();
+                }
+
+                // Mini-Boss encounter (30% chance between stages, never before stage 1 or boss)
+                if (i > 0 && !stage.IsBoss && rng.Next(100) < 30)
+                {
+                    var elite = Enemy.GetRandomElite(rng, realmId);
+                    var eliteCombat = new CombatWindow(_player, elite, stageNumber, totalStages, realm.Name + " [ELITE]") { Owner = this };
+                    bool? eliteResult = eliteCombat.ShowDialog();
+
+                    if (eliteResult != true)
+                    {
+                        UpdateUI();
+                        SavePlayer();
+                        return;
+                    }
+
+                    // Elite rewards: bonus gold, XP, and card
+                    int eliteGold = rng.Next(20, 40) + realmId * 5;
+                    int eliteXp = 30 + realmId * 10;
+                    _player.Gold += eliteGold;
+                    _player.Stats.TotalGoldEarned += eliteGold;
+                    _player.Stats.ElitesKilled++;
+                    bool eLeveled = _player.GainXp(eliteXp);
+                    int eHeal = (int)(_player.MaxHp * 0.15);
+                    _player.Heal(eHeal);
+
+                    string eliteMsg = $"ELITE DEFEATED!\n+{eliteGold} Gold\n+{eliteXp} XP\n+{eHeal} HP restored";
+                    if (eLeveled) eliteMsg += $"\nLEVEL UP! Level {_player.Level}!";
+
+                    // 60% chance for bonus card from elite
+                    if (rng.Next(100) < 60)
+                    {
+                        var eliteCard = CardLibrary.GetBossDropCard(rng, Math.Max(1, realmId - 1));
+                        _player.MasterDeck.Add(eliteCard);
+                        eliteMsg += $"\nELITE DROP: {eliteCard.Name} [{eliteCard.Rarity}]!";
+                    }
+
+                    MessageBox.Show(eliteMsg, "Elite Victory!");
+                    UpdateUI();
+                }
+
                 var enemy = new Enemy(stage.EnemyName, stage.EnemyHp, stage.EnemyDmg, stage.IsBoss);
                 var combat = new CombatWindow(_player, enemy, stageNumber, totalStages, realm.Name) { Owner = this };
                 bool? result = combat.ShowDialog();
@@ -102,9 +164,23 @@ public partial class GameWindow : Window
                 int heal = (int)(_player.MaxHp * 0.25);
                 _player.Heal(heal);
 
+                // Card reward (pick 1 of 3) after each victory
+                var cardChoices = new List<Card>();
+                for (int c = 0; c < 3; c++)
+                    cardChoices.Add(CardLibrary.GetRandomCard(rng, _player.Level));
+
+                var rewardWin = new CardRewardWindow(cardChoices) { Owner = this };
+                if (rewardWin.ShowDialog() == true && rewardWin.SelectedCard != null)
+                {
+                    _player.MasterDeck.Add(rewardWin.SelectedCard);
+                }
+
                 if (stage.IsBoss)
                 {
                     _player.Gold += realm.GoldReward;
+                    _player.Stats.TotalGoldEarned += realm.GoldReward;
+                    _player.Stats.BossesKilled++;
+                    _player.Stats.EnemiesKilled++;
                     bool leveledUp = _player.GainXp(realm.XpReward);
 
                     string msg = $"{realm.Name} CONQUERED!\n\n" +
@@ -128,6 +204,7 @@ public partial class GameWindow : Window
                     if (realm.Id >= _player.MaxRealmUnlocked && realm.Id < 10)
                     {
                         _player.MaxRealmUnlocked = realm.Id + 1;
+                        _player.Stats.RealmsCompleted++;
                         var nextRealm = Realm.GetAllRealms().FirstOrDefault(r => r.Id == realm.Id + 1);
                         if (nextRealm != null)
                             msg += $"\nNew realm unlocked: {nextRealm.Name}!";
@@ -140,6 +217,8 @@ public partial class GameWindow : Window
                     int gold = rng.Next(8, 18);
                     int xp = realm.XpReward / totalStages;
                     _player.Gold += gold;
+                    _player.Stats.TotalGoldEarned += gold;
+                    _player.Stats.EnemiesKilled++;
                     bool leveledUp = _player.GainXp(xp);
 
                     string msg = $"Stage {stageNumber}/{totalStages} cleared!\n+{gold} Gold\n+{xp} XP\n+{heal} HP restored";
@@ -191,6 +270,38 @@ public partial class GameWindow : Window
     {
         var arena = new ArenaWindow(_player) { Owner = this };
         arena.ShowDialog();
+        SavePlayer();
+        UpdateUI();
+    }
+
+    private void TalentsButton_Click(object sender, RoutedEventArgs e)
+    {
+        var talentWin = new TalentTreeWindow(_player) { Owner = this };
+        talentWin.ShowDialog();
+        SavePlayer();
+        UpdateUI();
+    }
+
+    private void DeckButton_Click(object sender, RoutedEventArgs e)
+    {
+        var deckWin = new DeckManagerWindow(_player) { Owner = this };
+        deckWin.ShowDialog();
+        SavePlayer();
+        UpdateUI();
+    }
+
+    private void ForgeButton_Click(object sender, RoutedEventArgs e)
+    {
+        var forgeWin = new FusionWindow(_player) { Owner = this };
+        forgeWin.ShowDialog();
+        SavePlayer();
+        UpdateUI();
+    }
+
+    private void EnchantButton_Click(object sender, RoutedEventArgs e)
+    {
+        var enchantWin = new EnchantWindow(_player) { Owner = this };
+        enchantWin.ShowDialog();
         SavePlayer();
         UpdateUI();
     }

@@ -22,6 +22,12 @@ public partial class InventoryWindow : Window
         WeaponTxt.Text = _player.EquippedWeapon != null
             ? $"{_player.EquippedWeapon.Name} (+{_player.EquippedWeapon.DamageBonus} DMG)"
             : "None";
+        ArmorItemTxt.Text = _player.EquippedArmor != null
+            ? $"{_player.EquippedArmor.Name} (-{_player.EquippedArmor.DamageReduction} DMG taken)"
+            : "None";
+        AccessoryTxt.Text = _player.EquippedAccessory != null
+            ? $"{_player.EquippedAccessory.Name} ({_player.EquippedAccessory.Effect})"
+            : "None";
         HpTxt.Text = $"{_player.CurrentHp}/{_player.MaxHp}";
         DeckCountTxt.Text = $"{_player.MasterDeck.Count} cards";
 
@@ -39,6 +45,8 @@ public partial class InventoryWindow : Window
             Color typeColor = item.Type switch
             {
                 ItemType.Weapon => Color.FromRgb(0xFF, 0x88, 0x44),
+                ItemType.Armor => Color.FromRgb(0x44, 0xAA, 0xFF),
+                ItemType.Accessory => Color.FromRgb(0xFF, 0xCC, 0x44),
                 ItemType.Consumable => Color.FromRgb(0x44, 0xFF, 0x44),
                 _ => Color.FromRgb(0xAA, 0xAA, 0xAA),
             };
@@ -46,6 +54,8 @@ public partial class InventoryWindow : Window
             string prefix = item.Type switch
             {
                 ItemType.Weapon => "[W] ",
+                ItemType.Armor => "[A] ",
+                ItemType.Accessory => "[Acc] ",
                 ItemType.Consumable => "[C] ",
                 _ => "",
             };
@@ -243,6 +253,18 @@ public partial class InventoryWindow : Window
             _player.EquippedWeapon = weapon;
             StatusTxt.Foreground = Brushes.LightBlue;
             StatusTxt.Text = $"Equipped {weapon.Name}!";
+        }
+        else if (item is ArmorItem armor)
+        {
+            _player.EquippedArmor = armor;
+            StatusTxt.Foreground = Brushes.LightBlue;
+            StatusTxt.Text = $"Equipped {armor.Name}! (Reduces damage by {armor.DamageReduction})";
+        }
+        else if (item is Accessory acc)
+        {
+            _player.EquippedAccessory = acc;
+            StatusTxt.Foreground = new SolidColorBrush(Color.FromRgb(0xFF, 0xCC, 0x44));
+            StatusTxt.Text = $"Equipped {acc.Name}!";
         }
         else
         {

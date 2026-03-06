@@ -1,0 +1,115 @@
+<Window x:Class="CardRPG.UI.EnchantWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Enchantment Table" Height="700" Width="950"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="Black">
+
+    <Grid>
+        <Image Source="Assets/bg_city.avif" Stretch="Fill"
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <Rectangle Fill="#DD0A0A15"/>
+
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="ENCHANTMENT TABLE" FontSize="28" FontWeight="Bold"
+                       HorizontalAlignment="Center" Margin="0,0,0,4">
+                <TextBlock.Foreground>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#CC44FF" Offset="0"/>
+                        <GradientStop Color="#8844FF" Offset="1"/>
+                    </LinearGradientBrush>
+                </TextBlock.Foreground>
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="#CC44FF" BlurRadius="14" ShadowDepth="0" Opacity="0.4"/>
+                </TextBlock.Effect>
+            </TextBlock>
+
+            <TextBlock Grid.Row="1" Text="Imbue your cards with powerful abilities! Only cards without abilities can be enchanted."
+                       FontSize="12" Foreground="#8B8B7A" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="280"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource RpgPanel}" Padding="10" Margin="0,0,10,0">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="YOUR CARDS (no ability)" Foreground="Gold"
+                                   FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <WrapPanel x:Name="CardPanel" Orientation="Horizontal"/>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource RpgPanel}" Padding="12">
+                    <StackPanel>
+                        <TextBlock Text="ENCHANT" Foreground="Gold" FontSize="16" FontWeight="Bold"
+                                   HorizontalAlignment="Center" Margin="0,0,0,8"/>
+
+                        <TextBlock x:Name="SelectedCardTxt" Text="Select a card..."
+                                   Foreground="White" FontSize="14" FontWeight="Bold"
+                                   HorizontalAlignment="Center" Margin="0,0,0,12"/>
+
+                        <StackPanel x:Name="EnchantOptions">
+                            <TextBlock Text="Choose an enchantment:" Foreground="#999" FontSize="12"
+                                       HorizontalAlignment="Center" Margin="0,0,0,8"/>
+
+                            <Button Content="⚔️ Lifesteal (80g)" Height="38" Margin="0,0,0,4"
+                                    Style="{StaticResource RpgRedButton}" FontSize="12" Tag="Lifesteal"
+                                    Click="EnchantButton_Click" x:Name="LifestealBtn"/>
+
+                            <Button Content="☠️ Poison (60g)" Height="38" Margin="0,0,0,4"
+                                    Style="{StaticResource RpgGreenButton}" FontSize="12" Tag="Poison"
+                                    Click="EnchantButton_Click" x:Name="PoisonBtn"/>
+
+                            <Button Content="⚡ Stun (120g)" Height="38" Margin="0,0,0,4"
+                                    Style="{StaticResource RpgButton}" FontSize="12" Tag="Stun"
+                                    Click="EnchantButton_Click" x:Name="StunBtn"/>
+
+                            <Button Content="⬇️ Weaken (70g)" Height="38" Margin="0,0,0,4"
+                                    Style="{StaticResource RpgButton}" FontSize="12" Tag="Weaken"
+                                    Click="EnchantButton_Click" x:Name="WeakenBtn"/>
+
+                            <Button Content="🛡 Fortify (90g)" Height="38" Margin="0,0,0,4"
+                                    Style="{StaticResource RpgTealButton}" FontSize="12" Tag="Fortify"
+                                    Click="EnchantButton_Click" x:Name="FortifyBtn"/>
+
+                            <Button Content="🔄 Draw (100g)" Height="38" Margin="0,0,0,4"
+                                    Style="{StaticResource RpgButton}" FontSize="12" Tag="Draw"
+                                    Click="EnchantButton_Click" x:Name="DrawBtn"/>
+                        </StackPanel>
+
+                        <Border Height="1" Background="#33FFFFFF" Margin="0,10,0,10"/>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="Gold: " Foreground="#8B8B7A" FontSize="14"/>
+                            <TextBlock x:Name="GoldTxt" Text="0" Foreground="#FFD700" FontSize="14" FontWeight="Bold"/>
+                        </StackPanel>
+
+                        <TextBlock x:Name="StatusTxt" Foreground="LimeGreen" FontSize="12"
+                                   TextWrapping="Wrap" TextAlignment="Center" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Grid.Row="3" Style="{StaticResource RpgPanel}" Padding="10,6" Margin="0,8,0,0">
+                <DockPanel>
+                    <TextBlock Text="ATK cards get combat ability. DEF cards: Fortify only. PWR cards: all enchants."
+                               Foreground="#666" FontSize="10" VerticalAlignment="Center"/>
+                    <Button DockPanel.Dock="Right" Content="Close" Width="90" Height="38"
+                            Style="{StaticResource RpgSubtleButton}" Click="CloseButton_Click"/>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

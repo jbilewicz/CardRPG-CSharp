@@ -88,33 +88,63 @@
 
         <Border Grid.Row="2" Style="{StaticResource RpgPanel}" Margin="10,0,10,10"
                 Padding="10,8">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 
-                <Button Content="JOURNEY" Width="170" Height="56" Margin="8"
-                        Style="{StaticResource RpgRedButton}"
-                        FontSize="16"
-                        Click="JourneyButton_Click"/>
+                    <Button Content="JOURNEY" Width="140" Height="56" Margin="6"
+                            Style="{StaticResource RpgRedButton}"
+                            FontSize="15"
+                            Click="JourneyButton_Click"/>
 
-                <Button Content="SHOP" Width="170" Height="56" Margin="8"
-                        Style="{StaticResource RpgButton}"
-                        FontSize="16"
-                        Click="ShopButton_Click"/>
+                    <Button Content="SHOP" Width="140" Height="56" Margin="6"
+                            Style="{StaticResource RpgButton}"
+                            FontSize="15"
+                            Click="ShopButton_Click"/>
 
-                <Button Content="TAVERN" Width="170" Height="56" Margin="8"
-                        Style="{StaticResource RpgButton}"
-                        FontSize="16"
-                        Click="TavernButton_Click"/>
+                    <Button Content="TAVERN" Width="140" Height="56" Margin="6"
+                            Style="{StaticResource RpgButton}"
+                            FontSize="15"
+                            Click="TavernButton_Click"/>
 
-                <Button Content="INVENTORY" Width="170" Height="56" Margin="8"
-                        Style="{StaticResource RpgTealButton}"
-                        FontSize="16"
-                        Click="InventoryButton_Click"/>
+                    <Button Content="INVENTORY" Width="140" Height="56" Margin="6"
+                            Style="{StaticResource RpgTealButton}"
+                            FontSize="15"
+                            Click="InventoryButton_Click"/>
 
-                <Button Content="ARENA" Width="170" Height="56" Margin="8"
-                        Style="{StaticResource RpgGreenButton}"
-                        FontSize="16"
-                        Click="ArenaButton_Click"/>
+                    <Button Content="ARENA" Width="140" Height="56" Margin="6"
+                            Style="{StaticResource RpgGreenButton}"
+                            FontSize="15"
+                            Click="ArenaButton_Click"/>
 
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
+
+                    <Button Content="TALENTS" Width="140" Height="46" Margin="6"
+                            Style="{StaticResource RpgButton}"
+                            FontSize="14"
+                            Click="TalentsButton_Click"/>
+
+                    <Button Content="DECK" Width="140" Height="46" Margin="6"
+                            Style="{StaticResource RpgButton}"
+                            FontSize="14"
+                            Click="DeckButton_Click"/>
+
+                    <Button Content="FORGE" Width="140" Height="46" Margin="6"
+                            Style="{StaticResource RpgButton}"
+                            FontSize="14"
+                            Click="ForgeButton_Click"/>
+
+                    <Button Content="ENCHANT" Width="140" Height="46" Margin="6"
+                            FontSize="14"
+                            Click="EnchantButton_Click">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource RpgButton}">
+                                <Setter Property="Foreground" Value="#CC44FF"/>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                </StackPanel>
             </StackPanel>
         </Border>
     </Grid>
